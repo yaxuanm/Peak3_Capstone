@@ -1,12 +1,13 @@
 # Peak3 Capstone: AI-Powered Requirements Workflow Automation
 
-Automated conversion of Excel Requirement Lists to Jira Epics and Stories for Peak3 insurance company.
+Automated conversion of Excel Requirement Lists to Business Specification Documents (BSDs) and Jira Epics/Stories for Peak3 insurance company, leveraging RAG-enhanced content generation with LLMs.
 
 ## Features
 
 - **Excel/CSV Ingestion**: Reads both `.xlsx/.xlsm` and `.csv` files
 - **Epic Grouping**: Groups requirements by `Requirement` column value
 - **Jira Integration**: Creates Epics and Stories with proper hierarchy
+- **RAG-Enhanced Content Generation**: Uses Retrieval-Augmented Generation (RAG) with LLMs to generate standardized BSD content aligned with enterprise templates
 - **Team-managed Support**: Uses `parent` field for Epic-Story linking
 - **Idempotency**: Prevents duplicate creation with search-before-create
 - **Dry-run Mode**: Preview changes without creating actual tickets
@@ -128,6 +129,7 @@ src/
 ### Adding New Features
 
 - **LLM Integration**: Enhance summary generation with AI
+- **RAG-Enhanced Content Generation**: Use Retrieval-Augmented Generation (RAG) with LLMs to generate standardized BSD content aligned with enterprise templates
 - **Label Mapping**: Map Domain/Sub-domain to Jira labels
 - **Component Mapping**: Map Domain to Jira components
 - **Epic Description**: AI-summarized descriptions from grouped requirements
