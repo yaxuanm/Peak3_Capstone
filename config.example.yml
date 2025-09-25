@@ -1,0 +1,34 @@
+# Excel列名映射（按你的模板调整大小写与空格）
+columns:
+  requirement_id: "Requirement ID"
+  requirement: "Requirement"            # 下拉列，映射到Epic名称
+  description: "Description"
+  priority: "Priority"                  # P0..P4
+  domain: "Domain"
+  subdomain: "Sub-domain"
+  requirement_type: "Requirement type"
+
+# 优先级映射
+priority_map:
+  P0: Highest
+  P1: High
+  P2: Medium
+  P3: Low
+  P4: Lowest
+
+# Jira字段可配置
+jira:
+  project_key: "${JIRA_PROJECT_KEY}"
+  epic_issue_type: "Epic"
+  story_issue_type: "Story"
+  epic_link_field_key: "customfield_10014"   # 你的Jira实例里Epic Link字段ID，需确认
+  component_from: "domain"                   # 可选：将Domain映射为Component
+  labels_from:
+    - "domain"
+    - "subdomain"
+    - "requirement_type"
+
+# 文本生成与摘要（本周先用简单规则；后续接LLM增强）
+texting:
+  story_title_words: 10    # 从描述中截取前N词作为简短标题
+  summarize_epic: false    # 本周先关闭；后续用LLM汇总
