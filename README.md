@@ -12,6 +12,50 @@ Automated conversion of Excel Requirement Lists to Business Specification Docume
 - **Idempotency**: Prevents duplicate creation with search-before-create
 - **Dry-run Mode**: Preview changes without creating actual tickets
 
+## Project Status
+
+### Completed Features
+
+- **Excel/CSV Parsing Engine**
+  - Dual-format support: Reads both `.xlsx/.xlsm` and `.csv` files without conversion.
+  - Configurable column mapping: Uses `config.yml` to map Excel headers to normalized keys.
+  - Data normalization: Trims whitespace, fills missing values, and standardizes fields.
+
+- **Jira Integration Engine**
+  - Authentication and connectivity: Reads Jira credentials from `.env` (base URL, email, API token).
+  - Epic creation by grouping: One Epic per unique `Requirement` value; reuses existing Epics idempotently.
+  - Story creation per row: Each Excel row becomes a Story with mapped fields.
+  - Epic–Story hierarchy (Team-managed): Links Stories to Epics using the `parent` field.
+  - Priority mapping: Maps `P0–P4` to Jira priorities via `config.yml`.
+  - Idempotency: Exact-summary search prevents duplicate issue creation across runs.
+
+- **Field Mapping Rules**
+  - Summary: `[Requirement ID] + concise description` (first N words, configurable).
+  - Description: Full `Description` field, sent in Atlassian Document Format (ADF).
+  - Priority: From Excel `Priority` using the configured mapping table.
+  - Epic Link (Team-managed equivalent): `Requirement` column as Epic Name; Story linked via `parent`.
+  - Labels/Components (basic): Optional labels from `Domain/Sub-domain/Requirement type`; `Domain` → Component.
+
+- **Engineering & Operations**
+  - Configuration management: `.env` for secrets, `config.yml` for mappings and project settings.
+  - Robustness: Retry with exponential backoff; safe JQL exact-match queries.
+  - Dry-run mode: Preview actions without creating Jira issues.
+  - Version control: Git repo initialized and pushed; `.gitignore` excludes secrets and data.
+  - Demo script: `demo.ps1` runs environment checks, dry-run, real-run, and verification.
+
+### Not Yet Completed
+
+- **Document Generation Engine**
+  - BSD generation: Automated Business Specification Document creation.
+  - LLM integration: Connect to OpenAI/Claude for content generation.
+  - RAG enhancement: Retrieval-Augmented Generation using sample documents.
+  - Enterprise templates: Standardized BSD formatting and templates.
+
+- **Advanced Field Mapping and Content**
+  - Epic Description (AI): Aggregate Story descriptions per Epic and generate an AI summary.
+  - Enhanced Story Description: Standard user story format and acceptance criteria expansion.
+  - Intelligent labeling: Advanced taxonomy/ontology-based labels from Domain/Sub-domain.
+
 ## Quick Start
 
 ### 1. Setup Environment
