@@ -87,21 +87,28 @@ Write-Host "   正在查询Jira中的最新工单..." -ForegroundColor Gray
 Write-Host ""
 
 try {
-    $jiraCheck = python -c "
+    $py = @'
 import os, requests
 from dotenv import load_dotenv
 load_dotenv()
-base = os.getenv('JIRA_BASE_URL').rstrip('/')
-email = os.getenv('JIRA_EMAIL')
-token = os.getenv('JIRA_API_TOKEN')
-key = os.getenv('JIRA_PROJECT_KEY')
-r = requests.get(f'{base}/rest/api/3/search?jql=project={key} ORDER BY created DESC', auth=(email, token), headers={'Accept':'application/json'})
-issues = r.json().get('issues', [])
-print('最新创建的工单:')
+base = (os.getenv("JIRA_BASE_URL") or "").rstrip("/")
+email = os.getenv("JIRA_EMAIL")
+token = os.getenv("JIRA_API_TOKEN")
+key = os.getenv("JIRA_PROJECT_KEY")
+url = f"{base}/rest/api/3/search?jql=project={key} ORDER BY created DESC"
+r = requests.get(url, auth=(email, token), headers={"Accept":"application/json"}, timeout=60)
+r.raise_for_status()
+issues = r.json().get("issues", [])
+print("最新创建的工单:")
 for i in issues[:8]:
-    parent = i['fields'].get('parent', {}).get('key', 'None')
-    print(f'  {i[\"key\"]}: {i[\"fields\"][\"summary\"]} ({i[\"fields\"][\"issuetype\"][\"name\"]}) - Parent: {parent}')
-"
+    fields = i.get("fields", {})
+    parent = (fields.get("parent") or {}).get("key", "None")
+    print(f"  {i['key']}: {fields.get('summary','')} ({fields.get('issuetype',{}).get('name','')}) - Parent: {parent}")
+'@
+    $tmpPy = New-TemporaryFile
+    Set-Content -Path $tmpPy -Value $py -Encoding UTF8
+    $jiraCheck = python $tmpPy 2>&1
+    Remove-Item $tmpPy -Force
     Write-Host $jiraCheck -ForegroundColor Green
 } catch {
     Write-Host "   ⚠️ 无法查询Jira工单（可能网络问题）" -ForegroundColor Yellow
