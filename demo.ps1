@@ -127,5 +127,8 @@ Write-Host '• 幂等性：重复运行不会创建重复工单' -ForegroundCol
 Write-Host '• 企业级安全：环境变量管理敏感凭证' -ForegroundColor White
 Write-Host '• 时间节省：2小时手工工作 → 5分钟自动化' -ForegroundColor White
 Write-Host ''
-Write-Host '项目GitHub: https://github.com/yaxuanm/Peak3_Capstone' -ForegroundColor Blue
+$__gh = @'
+项目GitHub: https://github.com/yaxuanm/Peak3_Capstone
+'@
+Write-Host $__gh -ForegroundColor Blue
 Write-Host ''
