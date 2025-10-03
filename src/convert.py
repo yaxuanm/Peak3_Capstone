@@ -102,9 +102,10 @@ def run(excel_path: str, config_path: str, dry_run: bool) -> None:
             description = coalesce_str(row.get("description"))
             summary = make_story_summary(req_id, description, story_title_words)
 
-            # Idempotent story by summary
-            existing = client.search_issue_by_summary(summary, issue_type="Story")
+            # Idempotent story by requirement ID
+            existing = client.search_issue_by_requirement_id(req_id, issue_type="Story")
             if existing:
+                print(f"[SKIP] Story already exists for Requirement ID: {req_id}")
                 continue
 
             priority_name = map_priority(coalesce_str(row.get("priority")), priority_map)

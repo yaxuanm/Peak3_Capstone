@@ -51,15 +51,16 @@ class JiraClient:
     def _get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         return self._request_with_retry("GET", path, params=params)
 
-    def search_issue_by_summary(self, summary: str, issue_type: Optional[str] = None) -> Optional[Dict[str, Any]]:
-        esc = jql_escape_literal(summary)
-        jql = f'project = "{self.project_key}" AND summary = "{esc}"'
+    def search_issue_by_requirement_id(self, requirement_id: str, issue_type: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """Search for existing issue by Requirement ID in summary field"""
+        esc = jql_escape_literal(requirement_id)
+        jql = f'project = "{self.project_key}" AND summary ~ "{esc}"'
         if issue_type:
             jql += f' AND issuetype = "{jql_escape_literal(issue_type)}"'
         try:
             data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 1})
         except Exception:
-            # 容错：JQL 400 时直接视为未找到，后续走创建逻辑
+            # Fallback: treat JQL 400 as not found, proceed with creation
             return None
         if data.get("dryRun"):
             return None

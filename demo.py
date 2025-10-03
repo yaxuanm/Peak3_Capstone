@@ -38,9 +38,9 @@ def main() -> int:
             config_path=str(root / "config.yml"),
             dry_run=True,
         )
-        print("✓ Dry-run completed")
+        print("[OK] Dry-run completed")
     except Exception as e:
-        print("✗ Dry-run failed:", e)
+        print("[ERROR] Dry-run failed:", e)
         return 1
 
     # Real creation
@@ -51,9 +51,9 @@ def main() -> int:
             config_path=str(root / "config.yml"),
             dry_run=False,
         )
-        print("✓ Creation completed")
+        print("[OK] Creation completed")
     except Exception as e:
-        print("✗ Creation failed:", e)
+        print("[ERROR] Creation failed:", e)
         print("Please check Jira credentials, network, or project permissions")
         return 2
 
