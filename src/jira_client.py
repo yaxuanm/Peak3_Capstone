@@ -71,22 +71,16 @@ class JiraClient:
 
     def get_epic_by_name(self, epic_name: str) -> Optional[Dict[str, Any]]:
         esc = jql_escape_literal(epic_name)
-        # 先尝试用 Epic Name（公司管理项目常用）；失败再退回 summary
-        candidates = [
-            f'project = "{self.project_key}" AND issuetype = "Epic" AND "Epic Name" = "{esc}"',
-            f'project = "{self.project_key}" AND issuetype = "Epic" AND summary = "{esc}"',
-        ]
-        for jql in candidates:
-            try:
-                data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 1})
-            except Exception:
-                continue
-            if data.get("dryRun"):
-                return None
-            issues = data.get("issues", [])
-            if issues:
-                return issues[0]
-        return None
+        # Use ~ operator for summary field (fuzzy match) since = is not supported
+        jql = f'project = "{self.project_key}" AND issuetype = "Epic" AND summary ~ "{esc}"'
+        try:
+            data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 1})
+        except Exception:
+            return None
+        if data.get("dryRun"):
+            return None
+        issues = data.get("issues", [])
+        return issues[0] if issues else None
 
     def create_epic(self, epic_name: str, epic_description: str) -> Dict[str, Any]:
         # Jira Cloud 要求 description 使用 Atlassian Document Format (ADF)
