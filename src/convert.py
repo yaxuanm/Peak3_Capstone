@@ -18,7 +18,7 @@ def group_by_epic(records: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any
 
 
 def aggregate_epic_description(items: List[Dict[str, Any]]) -> str:
-    # 简单聚合：按描述拼接；后续可接LLM摘要
+    # Simple aggregation: concatenate descriptions; can be enhanced with LLM summarization later
     descriptions = [coalesce_str(i.get("description")) for i in items if coalesce_str(i.get("description"))]
     return "\n\n".join(descriptions)
 
@@ -27,7 +27,7 @@ def run(excel_path: str, config_path: str, dry_run: bool) -> None:
     load_env()
     cfg = load_yaml_config(config_path)
 
-    # 读取我们当前 config.yml 的结构
+    # Read current config.yml structure
     excel_cfg: Dict[str, Any] = cfg.get("excel", {})
     columns_cfg: Dict[str, str] = excel_cfg.get("columns", {})
     jira_cfg: Dict[str, Any] = cfg.get("jira", {})
@@ -42,7 +42,7 @@ def run(excel_path: str, config_path: str, dry_run: bool) -> None:
     project_key = coalesce_str(jira_cfg.get("project_key")) or coalesce_str(os.getenv("JIRA_PROJECT_KEY"))
     epic_link_field_key = coalesce_str(jira_cfg.get("epic_link_field_key")) or None
 
-    # DryRun 模式下跳过凭证校验
+    # Skip credential validation in DryRun mode
     if not (base_url and email and token and project_key):
         if not dry_run:
             raise RuntimeError("Missing Jira credentials or project key. Please set env and config correctly.")
@@ -55,7 +55,7 @@ def run(excel_path: str, config_path: str, dry_run: bool) -> None:
 
     groups = group_by_epic(records)
 
-    # DryRun: 仅打印将要创建的 Epic 与 Story，不做任何 API 调用
+    # DryRun: Only print Epics and Stories to be created, no API calls
     if dry_run:
         for epic_name, items in groups.items():
             if not epic_name:
@@ -74,7 +74,7 @@ def run(excel_path: str, config_path: str, dry_run: bool) -> None:
                 print(f"[DRY RUN]     Priority: {priority_name}, Labels: {labels}, Components: {components}")
         return
 
-    # 非 DryRun，执行真实调用
+    # Non-DryRun, execute real API calls
     client = JiraClient(
         base_url=base_url,
         email=email,

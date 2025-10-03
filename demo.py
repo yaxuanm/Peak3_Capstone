@@ -28,33 +28,33 @@ def main() -> int:
     if missing:
         print(f"Missing env keys in .env: {', '.join(missing)}")
 
-    # Dry-run 预览
+    # Dry-run preview
     from src.convert import run as convert_run
 
-    print("\n[1/2] Dry-run 预览...")
+    print("\n[1/2] Dry-run preview...")
     try:
         convert_run(
             excel_path=str(root / "sample_requirements.csv"),
             config_path=str(root / "config.yml"),
             dry_run=True,
         )
-        print("✓ Dry-run 完成")
+        print("✓ Dry-run completed")
     except Exception as e:
-        print("✗ Dry-run 失败:", e)
+        print("✗ Dry-run failed:", e)
         return 1
 
-    # 实际创建
-    print("\n[2/2] 创建真实 Jira 工单...")
+    # Real creation
+    print("\n[2/2] Creating real Jira tickets...")
     try:
         convert_run(
             excel_path=str(root / "sample_requirements.csv"),
             config_path=str(root / "config.yml"),
             dry_run=False,
         )
-        print("✓ 创建完成")
+        print("✓ Creation completed")
     except Exception as e:
-        print("✗ 创建失败:", e)
-        print("请检查 Jira 凭证、网络 或 项目权限")
+        print("✗ Creation failed:", e)
+        print("Please check Jira credentials, network, or project permissions")
         return 2
 
     return 0
