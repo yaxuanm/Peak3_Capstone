@@ -37,6 +37,8 @@ class JiraClient:
                     time.sleep(backoff)
                     backoff *= 2
                     continue
+            if resp.status_code >= 400:
+                print(f"HTTP Error {resp.status_code}: {resp.text}")
             resp.raise_for_status()
             if resp.content:
                 return resp.json()
