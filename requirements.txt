@@ -3,3 +3,5 @@ openpyxl==3.1.5
 requests==2.32.3
 python-dotenv==1.0.1
 PyYAML==6.0.2
+openai==1.54.4
+numpy==1.26.4

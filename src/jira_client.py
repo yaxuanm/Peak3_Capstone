@@ -37,6 +37,15 @@ class JiraClient:
                     time.sleep(backoff)
                     backoff *= 2
                     continue
+            
+            # ADD THIS: Better error logging
+            if resp.status_code >= 400:
+                print(f"❌ Jira API Error {resp.status_code}:")
+                print(f"URL: {url}")
+                print(f"Request body: {kwargs.get('json', 'None')}")
+                print(f"Response: {resp.text}")
+                print("="*50)
+            
             resp.raise_for_status()
             if resp.content:
                 return resp.json()
@@ -57,9 +66,9 @@ class JiraClient:
         if issue_type:
             jql += f' AND issuetype = "{jql_escape_literal(issue_type)}"'
         try:
-            data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 1})
+            # CHANGE: Use the new JQL endpoint
+            data = self._get("/rest/api/3/search/jql", params={"jql": jql, "maxResults": 1})
         except Exception:
-            # 容错：JQL 400 时直接视为未找到，后续走创建逻辑
             return None
         if data.get("dryRun"):
             return None
@@ -68,14 +77,14 @@ class JiraClient:
 
     def get_epic_by_name(self, epic_name: str) -> Optional[Dict[str, Any]]:
         esc = jql_escape_literal(epic_name)
-        # 先尝试用 Epic Name（公司管理项目常用）；失败再退回 summary
         candidates = [
             f'project = "{self.project_key}" AND issuetype = "Epic" AND "Epic Name" = "{esc}"',
             f'project = "{self.project_key}" AND issuetype = "Epic" AND summary = "{esc}"',
         ]
         for jql in candidates:
             try:
-                data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 1})
+                # CHANGE: Use the new JQL endpoint
+                data = self._get("/rest/api/3/search/jql", params={"jql": jql, "maxResults": 1})
             except Exception:
                 continue
             if data.get("dryRun"):
@@ -145,7 +154,8 @@ class JiraClient:
             fields["parent"] = {"id": epic_issue_id}
         if labels:
             fields["labels"] = labels
-        if components:
-            fields["components"] = components
+        # Temporarily comment out component since it's not specified
+        # if components:
+        #     fields["components"] = components
 
         return self._post("/rest/api/3/issue", {"fields": fields})

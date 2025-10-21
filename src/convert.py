@@ -7,6 +7,7 @@ from .excel_parser import normalize_records, read_excel_records
 from .jira_client import JiraClient
 from .mappings import build_components, build_labels, make_story_summary, map_priority
 from .utils import coalesce_str, load_env, load_yaml_config
+from .data_quality_checker import DataQualityChecker
 
 
 def group_by_epic(records: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
@@ -18,21 +19,70 @@ def group_by_epic(records: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any
 
 
 def aggregate_epic_description(items: List[Dict[str, Any]]) -> str:
-    # 简单聚合：按描述拼接；后续可接LLM摘要
+    # group by description
     descriptions = [coalesce_str(i.get("description")) for i in items if coalesce_str(i.get("description"))]
     return "\n\n".join(descriptions)
 
 
-def run(excel_path: str, config_path: str, dry_run: bool) -> None:
+def perform_data_quality_check(excel_path: str, enable_quality_check: bool = True, sheet_name: str = "1. Requirements - Internal") -> Optional[List[str]]:
+    """
+    Perform data quality check on the Excel file before processing.
+    
+    Args:
+        excel_path (str): Path to the Excel file
+        enable_quality_check (bool): Whether to enable data quality checking
+        sheet_name (str): Name of the Excel sheet to check
+        
+    Returns:
+        Optional[List[str]]: List of quality check results, or None if disabled
+    """
+    if not enable_quality_check:
+        return None
+        
+    try:
+        # Initialize data quality checker
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            print("⚠️  Warning: OPENAI_API_KEY not found. Skipping data quality check.")
+            return None
+            
+        quality_checker = DataQualityChecker(api_key)
+        
+        # Load the Excel file for quality checking
+        if excel_path.endswith(".csv"):
+            import pandas as pd
+            df = pd.read_csv(excel_path)
+        else:
+            df = quality_checker.load_excel_sheet(excel_path, sheet_name)
+        
+        print(f"🔍 Performing data quality check on {len(df)} records...")
+        
+        # Perform quality check
+        quality_results = quality_checker.data_quality_check(df)
+        
+        print("✅ Data quality check completed!")
+        return quality_results
+        
+    except Exception as e:
+        print(f"⚠️  Warning: Data quality check failed: {str(e)}")
+        print("   Continuing with workflow...")
+        return None
+
+
+def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: bool = True) -> None:
     load_env()
     cfg = load_yaml_config(config_path)
 
     # 读取我们当前 config.yml 的结构
     excel_cfg: Dict[str, Any] = cfg.get("excel", {})
     columns_cfg: Dict[str, str] = excel_cfg.get("columns", {})
+    sheet_name: str = excel_cfg.get("sheet_name", "1. Requirements - Internal")
     jira_cfg: Dict[str, Any] = cfg.get("jira", {})
     priority_map: Dict[str, str] = jira_cfg.get("priority_mapping", {})
     story_title_words: int = int(cfg.get("texting", {}).get("story_title_words", 10))
+    
+    # Check if data quality checking is enabled in config
+    quality_check_enabled = cfg.get("data_quality", {}).get("enabled", enable_quality_check)
 
     base_url = jira_cfg.get("base_url") or coalesce_str(jira_cfg.get("baseUrl")) or coalesce_str(jira_cfg.get("url"))
     if not base_url:
@@ -50,8 +100,19 @@ def run(excel_path: str, config_path: str, dry_run: bool) -> None:
     component_from = jira_cfg.get("component_from")
     labels_from = cfg.get("jira", {}).get("labels_from", [])
 
-    records_raw = read_excel_records(excel_path)
+    records_raw = read_excel_records(excel_path, sheet_name)
     records = normalize_records(records_raw, columns_cfg)
+
+    # Perform data quality check before processing
+    quality_results = perform_data_quality_check(excel_path, quality_check_enabled, sheet_name)
+    if quality_results:
+        print("\n" + "="*80)
+        print("DATA QUALITY ANALYSIS RESULTS")
+        print("="*80)
+        for i, result in enumerate(quality_results, 1):
+            print(f"\n--- Requirement {i} Analysis ---")
+            print(result)
+        print("="*80 + "\n")
 
     groups = group_by_epic(records)
 
@@ -127,9 +188,10 @@ def main() -> None:
     parser.add_argument("-ExcelPath", required=True, help="Path to Excel file")
     parser.add_argument("-ConfigPath", required=True, help="Path to YAML config")
     parser.add_argument("-DryRun", action="store_true", help="Dry run (no API calls)")
+    parser.add_argument("-SkipQualityCheck", action="store_true", help="Skip data quality check")
     args = parser.parse_args()
 
-    run(excel_path=args.ExcelPath, config_path=args.ConfigPath, dry_run=args.DryRun)
+    run(excel_path=args.ExcelPath, config_path=args.ConfigPath, dry_run=args.DryRun, enable_quality_check=not args.SkipQualityCheck)
 
 
 if __name__ == "__main__":
