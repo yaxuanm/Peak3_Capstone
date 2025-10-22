@@ -6,6 +6,15 @@ Peak3 Requirements Automation System is a complete solution for automatically co
 
 ## 🏗️ System Architecture
 
+### Key Features
+- **Excel/CSV Ingestion**: Reads both `.xlsx/.xlsm` and `.csv` files
+- **AI-Powered Data Quality Check**: Validates data completeness and quality before Jira mapping
+- **Epic Grouping**: Groups requirements by `Requirement` column value
+- **Jira Integration**: Creates Epics and Stories with proper hierarchy
+- **Team-managed Support**: Uses `parent` field for Epic-Story linking
+- **Idempotency**: Prevents duplicate creation with search-before-create
+- **Dry-run Mode**: Preview changes without creating actual tickets
+
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Forge Frontend│    │   EC2 Backend   │    │   Jira Cloud    │
@@ -88,10 +97,25 @@ Peak3_Capstone/
 
 ## 🔧 Configuration
 
+### 1. Environment Variables
+
+Required `.env` values:
+```
+JIRA_BASE_URL=https://yourcompany.atlassian.net
+JIRA_EMAIL=your@email.com
+JIRA_API_TOKEN=your_api_token
+JIRA_PROJECT_KEY=YOUR_PROJECT_KEY
+OPENAI_API_KEY=your_openai_api_key
+```
+
+### 2. Configure Column Mapping
+
+Edit `config.yml` to match your Excel column names:
+
 ### Backend Configuration (config.yml)
 ```yaml
 excel:
-  sheet_name: "1. Requirements - Internal"
+  sheet_name: "1. Requirements - Internal"  # Excel worksheet name
   columns:
     requirement_id: "Requirement ID"
     requirement: "Requirement"
@@ -110,6 +134,12 @@ jira:
     "P2": "Medium"
     "P3": "Low"
     "P4": "Lowest"
+
+data_quality:
+  enabled: true
+  openai_model: "gpt-4o-mini"
+  max_tokens: 2000
+  temperature: 0.3
 ```
 
 ### Forge配置 (manifest.yml)
@@ -119,6 +149,7 @@ app:
   runtime:
     name: nodejs22.x
 
+<<<<<<< HEAD
 permissions:
   scopes:
     - read:jira-work
@@ -129,10 +160,22 @@ permissions:
         - address: http://54.242.32.81:8080
       backend:
         - address: http://54.242.32.81:8080
+=======
+```powershell
+# Dry-run (preview only) with Excel file
+python -m src.convert -ExcelPath ".\requirements.xlsx" -ConfigPath ".\config.yml" -DryRun
+
+# Create actual Jira tickets from Excel file
+python -m src.convert -ExcelPath ".\requirements.xlsx" -ConfigPath ".\config.yml"
+
+# Skip data quality check
+python -m src.convert -ExcelPath ".\requirements.xlsx" -ConfigPath ".\config.yml" -SkipQualityCheck
+>>>>>>> origin/llm_integrated
 ```
 
 ## 📊 Data Format
 
+<<<<<<< HEAD
 ### Excel/CSV File Format
 Files must contain the following columns:
 - **Requirement ID**: Requirement ID
@@ -142,6 +185,14 @@ Files must contain the following columns:
 - **Domain**: Domain
 - **Sub-domain**: Sub-domain
 - **Requirement type**: Requirement type
+=======
+1. **Parse Excel**: Reads requirement data and maps columns
+2. **Data Quality Check**: AI-powered validation of data completeness and quality
+3. **Group by Epic**: Groups rows by `Requirement` column value
+4. **Create Epic**: Creates one Epic per unique requirement group
+5. **Create Stories**: Creates one Story per row, linked to its Epic
+6. **Idempotency**: Skips existing Epics/Stories to prevent duplicates
+>>>>>>> origin/llm_integrated
 
 ### Priority Mapping
 - P0 → Highest
@@ -157,10 +208,21 @@ Files must contain the following columns:
 # Health check
 curl http://54.242.32.81:8080/api/health
 
+<<<<<<< HEAD
 # File validation
 curl -X POST http://54.242.32.81:8080/api/validate \
   -H "Content-Type: application/json" \
   -d '{"fileContent":"base64_content","fileName":"test.csv"}'
+=======
+```
+src/
+├── convert.py              # Main conversion logic
+├── excel_parser.py         # Excel/CSV parsing
+├── jira_client.py          # Jira API integration
+├── mappings.py             # Field mapping utilities
+├── utils.py               # Common utilities
+└── data_quality_checker.py # AI-powered data quality validation
+>>>>>>> origin/llm_integrated
 ```
 
 ### 2. Frontend Testing
@@ -189,11 +251,31 @@ curl -X POST http://54.242.32.81:8080/api/validate \
    - Verify file format (.xlsx, .xls, .csv)
    - Check backend logs
 
+<<<<<<< HEAD
 ### Log Viewing
 ```bash
 # EC2 service logs
 ssh -i yaxuanm.pem ec2-user@54.242.32.81
 cat /home/ec2-user/peak3-backend/app.log
+=======
+## Development
+
+### Adding New Features
+
+- **LLM Integration**: Enhance summary generation with AI
+- **Label Mapping**: Map Domain/Sub-domain to Jira labels
+- **Component Mapping**: Map Domain to Jira components
+- **Epic Description**: AI-summarized descriptions from grouped requirements
+
+### Testing
+
+```powershell
+# Test with sample data (CSV)
+python -m src.convert -ExcelPath ".\sample_requirements.csv" -ConfigPath ".\config.yml" -DryRun
+
+# Test with Excel file
+python -m src.convert -ExcelPath ".\requirements.xlsx" -ConfigPath ".\config.yml" -DryRun
+>>>>>>> origin/llm_integrated
 ```
 
 ## 📈 Features

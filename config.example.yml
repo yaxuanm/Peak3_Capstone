@@ -1,12 +1,14 @@
-# Excel列名映射（按你的模板调整大小写与空格）
-columns:
-  requirement_id: "Requirement ID"
-  requirement: "Requirement"            # 下拉列，映射到Epic名称
-  description: "Description"
-  priority: "Priority"                  # P0..P4
-  domain: "Domain"
-  subdomain: "Sub-domain"
-  requirement_type: "Requirement type"
+# Excel配置
+excel:
+  sheet_name: "1. Requirements - Internal"  # Excel工作表名称
+  columns:
+    requirement_id: "Requirement ID"
+    requirement: "Requirement"            # 下拉列，映射到Epic名称
+    description: "Description"
+    priority: "Priority"                  # P0..P4
+    domain: "Domain"
+    subdomain: "Sub-domain"
+    requirement_type: "Requirement type"
 
 # 优先级映射
 priority_map:
@@ -32,3 +34,10 @@ jira:
 texting:
   story_title_words: 10    # 从描述中截取前N词作为简短标题
   summarize_epic: false    # 本周先关闭；后续用LLM汇总
+
+# 数据质量检查配置
+data_quality:
+  enabled: true           # 是否启用数据质量检查
+  openai_model: "gpt-4o-mini"  # OpenAI模型名称
+  max_tokens: 2000        # 最大token数
+  temperature: 0.3        # 温度参数

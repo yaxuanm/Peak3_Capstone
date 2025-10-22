@@ -4,18 +4,15 @@ import os
 import pandas as pd
 
 
-def _read_any_table(path: str) -> pd.DataFrame:
-    ext = os.path.splitext(path)[1].lower()
-    if ext in [".xlsx", ".xlsm", ".xls"]:
-        return pd.read_excel(path, engine="openpyxl")
-    if ext in [".csv", ".txt"]:
-        return pd.read_csv(path, dtype=str)
-    # fallback try excel
-    return pd.read_excel(path, engine="openpyxl")
+def _read_any_table(path: str, sheet_name: str = None) -> pd.DataFrame:
+    """Read Excel or CSV file into DataFrame."""
+    if path.endswith(".csv"):
+        return pd.read_csv(path)
+    return pd.read_excel(path, sheet_name=sheet_name, engine="openpyxl")
+    
 
-
-def read_excel_records(excel_path: str) -> List[Dict[str, Any]]:
-    df = _read_any_table(excel_path)
+def read_excel_records(excel_path: str, sheet_name: str = None) -> List[Dict[str, Any]]:
+    df = _read_any_table(excel_path, sheet_name)
     df = df.fillna("")
     records: List[Dict[str, Any]] = df.to_dict(orient="records")
     return records
