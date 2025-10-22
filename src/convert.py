@@ -24,7 +24,7 @@ def aggregate_epic_description(items: List[Dict[str, Any]]) -> str:
     return "\n\n".join(descriptions)
 
 
-def perform_data_quality_check(excel_path: str, enable_quality_check: bool = True, sheet_name: str = "1. Requirements - Internal") -> Optional[List[str]]:
+def perform_data_quality_check(excel_path: str, enable_quality_check: bool = True, sheet_name: str = "1. Requirements - Internal") -> Optional[Dict]:
     """
     Perform data quality check on the Excel file before processing.
     
@@ -34,7 +34,7 @@ def perform_data_quality_check(excel_path: str, enable_quality_check: bool = Tru
         sheet_name (str): Name of the Excel sheet to check
         
     Returns:
-        Optional[List[str]]: List of quality check results, or None if disabled
+        Optional[Dict]: Dictionary containing quality results and summaries, or None if disabled
     """
     if not enable_quality_check:
         return None
@@ -61,7 +61,22 @@ def perform_data_quality_check(excel_path: str, enable_quality_check: bool = Tru
         quality_results = quality_checker.data_quality_check(df)
         
         print("✅ Data quality check completed!")
-        return quality_results
+        
+        # Create mappings for easy lookup
+        summary_map = {}
+        description_map = {}
+        for result in quality_results:
+            if result['summary']:
+                summary_map[result['row_index']] = result['summary']
+            if result['description']:
+                description_map[result['row_index']] = result['description']
+        
+        return {
+            'results': quality_results,
+            'summary_map': summary_map,
+            'description_map': description_map,
+            'dataframe': df
+        }
         
     except Exception as e:
         print(f"⚠️  Warning: Data quality check failed: {str(e)}")
@@ -69,8 +84,10 @@ def perform_data_quality_check(excel_path: str, enable_quality_check: bool = Tru
         return None
 
 
-def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: bool = True) -> None:
-    load_env()
+def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: bool = True, jira_config: Optional[Dict[str, str]] = None) -> None:
+    # Only load env if jira_config is not provided
+    if jira_config is None:
+        load_env()
     cfg = load_yaml_config(config_path)
 
     # Read current config.yml structure
@@ -84,12 +101,19 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
     # Check if data quality checking is enabled in config
     quality_check_enabled = cfg.get("data_quality", {}).get("enabled", enable_quality_check)
 
-    base_url = jira_cfg.get("base_url") or coalesce_str(jira_cfg.get("baseUrl")) or coalesce_str(jira_cfg.get("url"))
-    if not base_url:
-        base_url = coalesce_str(os.getenv("JIRA_BASE_URL"))
-    email = coalesce_str(os.getenv("JIRA_EMAIL"))
-    token = coalesce_str(os.getenv("JIRA_API_TOKEN"))
-    project_key = coalesce_str(jira_cfg.get("project_key")) or coalesce_str(os.getenv("JIRA_PROJECT_KEY"))
+    # Use jira_config if provided, otherwise fall back to config file and environment variables
+    if jira_config:
+        base_url = jira_config.get("baseUrl")
+        email = jira_config.get("email")
+        token = jira_config.get("apiToken")
+        project_key = jira_config.get("projectKey")
+    else:
+        base_url = jira_cfg.get("base_url") or coalesce_str(jira_cfg.get("baseUrl")) or coalesce_str(jira_cfg.get("url"))
+        if not base_url:
+            base_url = coalesce_str(os.getenv("JIRA_BASE_URL"))
+        email = coalesce_str(os.getenv("JIRA_EMAIL"))
+        token = coalesce_str(os.getenv("JIRA_API_TOKEN"))
+        project_key = coalesce_str(jira_cfg.get("project_key")) or coalesce_str(os.getenv("JIRA_PROJECT_KEY"))
     epic_link_field_key = coalesce_str(jira_cfg.get("epic_link_field_key")) or None
 
     # Skip credential validation in DryRun mode
@@ -109,15 +133,23 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
     ]
 
     # Perform data quality check before processing
-    quality_results = perform_data_quality_check(excel_path, quality_check_enabled, sheet_name)
-    if quality_results:
+    quality_data = perform_data_quality_check(excel_path, quality_check_enabled, sheet_name)
+    summary_map = {}
+    description_map = {}
+    if quality_data:
         print("\n" + "="*80)
         print("DATA QUALITY ANALYSIS RESULTS")
         print("="*80)
-        for i, result in enumerate(quality_results, 1):
+        for i, result in enumerate(quality_data['results'], 1):
             print(f"\n--- Requirement {i} Analysis ---")
-            print(result)
+            print(result['analysis'])
+            if result['summary']:
+                print(f"Generated Summary: {result['summary']}")
+            if result['description']:
+                print(f"Generated Description: {result['description']}")
         print("="*80 + "\n")
+        summary_map = quality_data['summary_map']
+        description_map = quality_data['description_map']
 
     groups = group_by_epic(records)
 
@@ -129,12 +161,30 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
             epic_desc = aggregate_epic_description(items)
             print(f"[DRY RUN] Would create Epic: {epic_name}")
             print(f"[DRY RUN]   Epic Description Preview: {epic_desc[:120]}...")
-            for row in items:
+            for idx, row in enumerate(items):
+                # Only process first 5 records for testing
+                if idx >= 5:
+                    break
                 req_id = coalesce_str(row.get("requirement_id"))
                 if not req_id:
                     continue
                 description = coalesce_str(row.get("description"))
-                summary = make_story_summary(req_id, description, story_title_words)
+                
+                # Use LLM-generated summary if available, otherwise fallback to simple summary
+                if idx in summary_map and summary_map[idx]:
+                    summary = summary_map[idx]
+                    print(f"[DRY RUN]   Using LLM-generated summary: {summary}")
+                else:
+                    summary = make_story_summary(req_id, description, story_title_words)
+                    print(f"[DRY RUN]   Using fallback summary: {summary}")
+                
+                # Use LLM-generated description if available, otherwise use original description
+                if idx in description_map and description_map[idx]:
+                    enhanced_description = description_map[idx]
+                    print(f"[DRY RUN]   Using LLM-generated description: {enhanced_description[:100]}...")
+                else:
+                    enhanced_description = description
+                    print(f"[DRY RUN]   Using original description: {enhanced_description[:100]}...")
                 if summary == "Untitled Story":
                     continue
                 priority_name = map_priority(coalesce_str(row.get("priority")), priority_map)
@@ -167,12 +217,30 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
             epic_id = epic_issue.get("id")
 
         # Create stories
-        for row in items:
+        for idx, row in enumerate(items):
+            # Only process first 5 records for testing
+            if idx >= 5:
+                break
             req_id = coalesce_str(row.get("requirement_id"))
             if not req_id:
                 continue
             description = coalesce_str(row.get("description"))
-            summary = make_story_summary(req_id, description, story_title_words)
+            
+            # Use LLM-generated summary if available, otherwise fallback to simple summary
+            if idx in summary_map and summary_map[idx]:
+                summary = summary_map[idx]
+                print(f"Using LLM-generated summary: {summary}")
+            else:
+                summary = make_story_summary(req_id, description, story_title_words)
+                print(f"Using fallback summary: {summary}")
+            
+            # Use LLM-generated description if available, otherwise use original description
+            if idx in description_map and description_map[idx]:
+                enhanced_description = description_map[idx]
+                print(f"Using LLM-generated description: {enhanced_description[:100]}...")
+            else:
+                enhanced_description = description
+                print(f"Using original description: {enhanced_description[:100]}...")
             if summary == "Untitled Story":
                 continue
 
@@ -186,15 +254,17 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
             labels = build_labels(row, labels_from)
             components = build_components(row, component_from)
 
-            client.create_story(
+            print(f"[DEBUG] Creating Jira story for {req_id}: {summary}")
+            result = client.create_story(
                 summary=summary,
-                description=description,
+                description=enhanced_description,
                 priority_name=priority_name,
                 epic_issue_id=epic_id,
                 epic_link_field_key=epic_link_field_key,
                 labels=labels,
                 components=components,
             )
+            print(f"[DEBUG] Created Jira story: {result}")
 
 
 def main() -> None:

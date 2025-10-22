@@ -113,6 +113,19 @@ def process_requirements():
         file_name = data.get('fileName', 'requirements.xlsx')
         jira_config = data.get('jiraConfig', {})
         
+        # Debug: Log the received jira_config
+        logger.info(f"Received jira_config: {jira_config}")
+        
+        # If no jira_config provided, use default values
+        if not jira_config or not jira_config.get('baseUrl'):
+            logger.info("No jira_config provided, using default values")
+            jira_config = {
+                'baseUrl': 'https://peak3capstone.atlassian.net',
+                'email': 'yaxuanm@andrew.cmu.edu',
+                'apiToken': 'ATATT3xFfGF0hrBZ3Jvlrd1NG2lPsiw4wESb2mGQFNGHmJo7ly2afE35yQVMChQ5OYOWZphEphEXzTTIM2QFKjjiee_wdGlmsr610Rwy2qLQ9j_z-By2keMbWMP4GWw0QnMTg00r0gKLjs6oOnQXQQwWEowQTp4UnLcUYTyOP_pW86FkXx9ezQ4=542CC2C0',
+                'projectKey': 'SCRUM'
+            }
+        
         if not file_content:
             return jsonify({
                 'success': False,
@@ -139,7 +152,8 @@ def process_requirements():
                 logger.info(f"Set {key} = {value[:20]}..." if len(str(value)) > 20 else f"Set {key} = {value}")
         
         # Load environment and configuration AFTER setting our values
-        load_env()
+        # Don't call load_env() here as it might override our manually set values
+        # load_env()
         
         # Save file from base64 content
         temp_file_path = save_base64_file(file_content, file_name)
@@ -168,6 +182,10 @@ def process_requirements():
                         "P3": "Low",
                         "P4": "Lowest"
                     }
+                },
+                'llm': {
+                    'enable_quality_check': True,
+                    'enable_smart_summary': True
                 }
             }
             
@@ -187,16 +205,20 @@ def process_requirements():
                 convert_run(
                     excel_path=temp_file_path,
                     config_path=temp_config_path.name,
-                    dry_run=True
+                    dry_run=True,
+                    jira_config=jira_config
                 )
+                logger.info("Dry run validation completed successfully")
                 
                 # Run actual conversion
                 logger.info("Creating Jira tickets...")
                 convert_run(
                     excel_path=temp_file_path,
                     config_path=temp_config_path.name,
-                    dry_run=False
+                    dry_run=False,
+                    jira_config=jira_config
                 )
+                logger.info("Jira ticket creation completed successfully")
                 
                 return jsonify({
                     'success': True,
@@ -251,6 +273,19 @@ def forge_process_workflow():
         file_content = data.get('fileContent')
         file_name = data.get('fileName', 'requirements.xlsx')
         jira_config = data.get('jiraConfig', {})
+        
+        # Debug: Log the received jira_config
+        logger.info(f"Received jira_config: {jira_config}")
+        
+        # If no jira_config provided, use default values
+        if not jira_config or not jira_config.get('baseUrl'):
+            logger.info("No jira_config provided, using default values")
+            jira_config = {
+                'baseUrl': 'https://peak3capstone.atlassian.net',
+                'email': 'yaxuanm@andrew.cmu.edu',
+                'apiToken': 'ATATT3xFfGF0hrBZ3Jvlrd1NG2lPsiw4wESb2mGQFNGHmJo7ly2afE35yQVMChQ5OYOWZphEphEXzTTIM2QFKjjiee_wdGlmsr610Rwy2qLQ9j_z-By2keMbWMP4GWw0QnMTg00r0gKLjs6oOnQXQQwWEowQTp4UnLcUYTyOP_pW86FkXx9ezQ4=542CC2C0',
+                'projectKey': 'SCRUM'
+            }
         
         if not file_content:
             return jsonify({

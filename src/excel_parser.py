@@ -7,7 +7,11 @@ import pandas as pd
 def _read_any_table(path: str, sheet_name: str = None) -> pd.DataFrame:
     """Read Excel or CSV file into DataFrame."""
     if path.endswith(".csv"):
-        return pd.read_csv(path)
+        # Handle BOM character in CSV files
+        df = pd.read_csv(path, encoding='utf-8-sig')
+        # Clean column names by removing BOM and other invisible characters
+        df.columns = df.columns.str.replace(r'^\ufeff', '', regex=True)
+        return df
     return pd.read_excel(path, sheet_name=sheet_name, engine="openpyxl")
     
 

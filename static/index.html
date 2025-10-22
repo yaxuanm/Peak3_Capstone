@@ -33,19 +33,19 @@
                 <form id="configForm" class="config-form">
                     <div class="form-group">
                         <label for="baseUrl">Jira Base URL:</label>
-                        <input type="url" id="baseUrl" placeholder="https://yourcompany.atlassian.net" required>
+                        <input type="url" id="baseUrl" placeholder="https://yourcompany.atlassian.net" value="https://peak3capstone.atlassian.net">
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address:</label>
-                        <input type="email" id="email" placeholder="your@email.com" required>
+                        <input type="email" id="email" placeholder="your@email.com" value="yaxuanm@andrew.cmu.edu">
                     </div>
                     <div class="form-group">
                         <label for="apiToken">API Token:</label>
-                        <input type="password" id="apiToken" placeholder="ATATT3x..." required>
+                        <input type="password" id="apiToken" placeholder="ATATT3x..." value="ATATT3xFfGF0hrBZ3Jvlrd1NG2lPsiw4wESb2mGQFNGHmJo7ly2afE35yQVMChQ5OYOWZphEphEXzTTIM2QFKjjiee_wdGlmsr610Rwy2qLQ9j_z-By2keMbWMP4GWw0QnMTg00r0gKLjs6oOnQXQQwWEowQTp4UnLcUYTyOP_pW86FkXx9ezQ4=542CC2C0">
                     </div>
                     <div class="form-group">
                         <label for="projectKey">Project Key:</label>
-                        <input type="text" id="projectKey" placeholder="REQ" required>
+                        <input type="text" id="projectKey" placeholder="REQ" value="SCRUM">
                     </div>
                 </form>
             </div>
@@ -147,7 +147,8 @@
             const hasValidConfig = isConfigValid();
             
             validateButton.disabled = !hasFile;
-            processButton.disabled = !hasFile || !hasValidConfig;
+            // Allow processing even without config (backend has defaults)
+            processButton.disabled = !hasFile;
         }
 
         function isConfigValid() {
@@ -160,11 +161,22 @@
         }
 
         function getJiraConfig() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const apiToken = document.getElementById('apiToken').value.trim();
+            const projectKey = document.getElementById('projectKey').value.trim();
+            
+            // If any field is empty, return empty object to use backend defaults
+            if (!baseUrl || !email || !apiToken || !projectKey) {
+                console.log('Jira config incomplete, using backend defaults');
+                return {};
+            }
+            
             return {
-                baseUrl: document.getElementById('baseUrl').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                apiToken: document.getElementById('apiToken').value.trim(),
-                projectKey: document.getElementById('projectKey').value.trim()
+                baseUrl: baseUrl,
+                email: email,
+                apiToken: apiToken,
+                projectKey: projectKey
             };
         }
 
@@ -219,8 +231,19 @@
                 
                 showStatus(`Processing file using ${modeText} and creating Jira tickets...`, 'info');
                 
+                console.log('Starting file processing...');
                 const base64 = await fileToBase64(file);
+                console.log('File converted to base64, length:', base64.length);
+                
                 const jiraConfig = getJiraConfig();
+                console.log('Jira config:', jiraConfig);
+                
+                const requestData = {
+                    fileContent: base64,
+                    fileName: file.name,
+                    jiraConfig: jiraConfig
+                };
+                console.log('Request data prepared, file name:', file.name);
                 
                 const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                     method: 'POST',
@@ -255,7 +278,8 @@
                 }
             } catch (error) {
                 console.error('Processing error:', error);
-                showStatus(`Error occurred during processing: ${error.message}`, 'error');
+                const errorMessage = error?.message || error || 'Unknown error occurred';
+                showStatus(`Error occurred during processing: ${errorMessage}`, 'error');
             }
         }
 
