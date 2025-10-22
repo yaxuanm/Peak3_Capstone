@@ -1,107 +1,100 @@
-# Peak3 Capstone: AI-Powered Requirements Workflow Automation
+# Peak3 Requirements Automation System
 
-Automated conversion of Excel Requirement Lists to Business Specification Documents (BSDs) and Jira Epics/Stories for Peak3 insurance company, leveraging RAG-enhanced content generation with LLMs.
+## 🎯 Project Overview
 
-## Features
+Peak3 Requirements Automation System is a complete solution for automatically converting Excel/CSV requirement files to Jira tickets. The system uses a frontend-backend separation architecture, with the frontend built on Atlassian Forge platform and the backend deployed on AWS EC2.
 
-- **Excel/CSV Ingestion**: Reads both `.xlsx/.xlsm` and `.csv` files
-- **Epic Grouping**: Groups requirements by `Requirement` column value
-- **Jira Integration**: Creates Epics and Stories with proper hierarchy
-- **RAG-Enhanced Content Generation**: Uses Retrieval-Augmented Generation (RAG) with LLMs to generate standardized BSD content aligned with enterprise templates
-- **Team-managed Support**: Uses `parent` field for Epic-Story linking
-- **Idempotency**: Prevents duplicate creation with search-before-create
-- **Dry-run Mode**: Preview changes without creating actual tickets
+## 🏗️ System Architecture
 
-## Project Status
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Forge Frontend│    │   EC2 Backend   │    │   Jira Cloud    │
+│   (Jira Integration)│───▶│   (Python API)  │───▶│   (Ticket Creation)│
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
-### Completed Features
+### Technology Stack
+- **Frontend**: Atlassian Forge (TypeScript, HTML, CSS)
+- **Backend**: Python Flask (REST API)
+- **Deployment**: AWS EC2
+- **Integration**: Jira Cloud API
 
-- **Excel/CSV Parsing Engine**
-  - Dual-format support: Reads both `.xlsx/.xlsm` and `.csv` files without conversion.
-  - Configurable column mapping: Uses `config.yml` to map Excel headers to normalized keys.
-  - Data normalization: Trims whitespace, fills missing values, and standardizes fields.
+## 🚀 Quick Start
 
-- **Jira Integration Engine**
-  - Authentication and connectivity: Reads Jira credentials from `.env` (base URL, email, API token).
-  - Epic creation by grouping: One Epic per unique `Requirement` value; reuses existing Epics idempotently.
-  - Story creation per row: Each Excel row becomes a Story with mapped fields.
-  - Epic–Story hierarchy (Team-managed): Links Stories to Epics using the `parent` field.
-  - Priority mapping: Maps `P0–P4` to Jira priorities via `config.yml`.
-  - Idempotency: Exact-summary search prevents duplicate issue creation across runs.
+### Prerequisites
+- Node.js 20.x or 22.x
+- Python 3.9+
+- Atlassian Account
+- AWS Account
 
-- **Field Mapping Rules**
-  - Summary: `[Requirement ID] + concise description` (first N words, configurable).
-  - Description: Full `Description` field, sent in Atlassian Document Format (ADF).
-  - Priority: From Excel `Priority` using the configured mapping table.
-  - Epic Link (Team-managed equivalent): `Requirement` column as Epic Name; Story linked via `parent`.
-  - Labels/Components (basic): Optional labels from `Domain/Sub-domain/Requirement type`; `Domain` → Component.
+### 1. Backend Service Status
+Backend service is deployed on AWS EC2:
+- **Service URL**: `http://54.242.32.81:8080`
+- **Status**: ✅ Running normally
+- **API Endpoints**:
+  - Health Check: `/api/health`
+  - File Validation: `/api/validate`
+  - File Processing: `/api/process`
+  - Forge Integration: `/api/forge/process`
 
-- **Engineering & Operations**
-  - Configuration management: `.env` for secrets, `config.yml` for mappings and project settings.
-  - Robustness: Retry with exponential backoff; safe JQL exact-match queries.
-  - Dry-run mode: Preview actions without creating Jira issues.
-  - Version control: Git repo initialized and pushed; `.gitignore` excludes secrets and data.
-  - Demo script: `demo.ps1` runs environment checks, dry-run, real-run, and verification.
-
-### Not Yet Completed
-
-- **Document Generation Engine**
-  - BSD generation: Automated Business Specification Document creation.
-  - LLM integration: Connect to OpenAI/Claude for content generation.
-  - RAG enhancement: Retrieval-Augmented Generation using sample documents.
-  - Enterprise templates: Standardized BSD formatting and templates.
-
-- **Advanced Field Mapping and Content**
-  - Epic Description (AI): Aggregate Story descriptions per Epic and generate an AI summary.
-  - Enhanced Story Description: Standard user story format and acceptance criteria expansion.
-  - Intelligent labeling: Advanced taxonomy/ontology-based labels from Domain/Sub-domain.
-
-## Quick Start
-
-### 1. Setup Environment
-
-```powershell
-# Clone and navigate to project
-git clone <your-repo-url>
-cd Peak3_Capstone
-
-# Create virtual environment
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+### 2. Frontend Deployment
+```bash
+# Navigate to Forge project directory
+cd frontend_temp/peak3_demo
 
 # Install dependencies
-pip install -r requirements.txt
+npm install
+
+# Build project
+npm run build
+
+# Login to Forge CLI
+forge login
+
+# Deploy application
+forge deploy
+
+# Install to Jira
+forge install
 ```
 
-### 2. Configure Credentials
+## 📁 Project Structure
 
-```powershell
-# Copy example files
-copy .env.example .env
-copy config.example.yml config.yml
-
-# Edit .env with your Jira credentials
-notepad .env
+```
+Peak3_Capstone/
+├── src/                          # Python backend source code
+│   ├── api.py                    # Flask API main file
+│   ├── convert.py                # File conversion logic
+│   ├── excel_parser.py           # Excel parser
+│   ├── jira_client.py            # Jira client
+│   ├── forge_integration.py      # Forge integration module
+│   └── utils.py                  # Utility functions
+├── frontend_temp/peak3_demo/     # Forge frontend project
+│   ├── src/
+│   │   ├── resolver.ts           # Forge resolver
+│   │   ├── parseExcel.ts         # Excel processing
+│   │   ├── createJira.ts         # Jira creation
+│   │   └── callLLM.ts            # LLM calls
+│   ├── static/
+│   │   ├── index.html            # Main interface
+│   │   └── styles.css            # Style files
+│   ├── manifest.yml              # Forge configuration
+│   └── package.json              # Dependencies configuration
+├── static/                       # Local web interface
+├── config.yml                    # Configuration file
+├── requirements.txt              # Python dependencies
+└── sample_requirements.csv       # Sample data
 ```
 
-Required `.env` values:
-```
-JIRA_BASE_URL=https://yourcompany.atlassian.net
-JIRA_EMAIL=your@email.com
-JIRA_API_TOKEN=your_api_token
-JIRA_PROJECT_KEY=YOUR_PROJECT_KEY
-```
+## 🔧 Configuration
 
-### 3. Configure Column Mapping
-
-Edit `config.yml` to match your Excel column names:
-
+### Backend Configuration (config.yml)
 ```yaml
 excel:
   sheet_name: "1. Requirements - Internal"
   columns:
     requirement_id: "Requirement ID"
-    requirement: "Requirement"  # Epic name
+    requirement: "Requirement"
     description: "Description"
     priority: "Priority"
     domain: "Domain"
@@ -109,7 +102,8 @@ excel:
     requirement_type: "Requirement type"
 
 jira:
-  project_key: "YOUR_PROJECT_KEY"
+  project_key: "SCRUM"
+  epic_link_field_key: "customfield_10014"
   priority_mapping:
     "P0": "Highest"
     "P1": "High"
@@ -118,80 +112,133 @@ jira:
     "P4": "Lowest"
 ```
 
-### 4. Run Conversion
+### Forge配置 (manifest.yml)
+```yaml
+app:
+  id: ari:cloud:ecosystem::app/17ebda9a-24a4-4606-8c85-d4c788d780fb
+  runtime:
+    name: nodejs22.x
 
-```powershell
-# Dry-run (preview only)
-python -m src.convert -ExcelPath ".\sample_requirements.csv" -ConfigPath ".\config.yml" -DryRun
-
-# Create actual Jira tickets
-python -m src.convert -ExcelPath ".\sample_requirements.csv" -ConfigPath ".\config.yml"
+permissions:
+  scopes:
+    - read:jira-work
+    - write:jira-work
+  external:
+    fetch:
+      client:
+        - address: http://54.242.32.81:8080
+      backend:
+        - address: http://54.242.32.81:8080
 ```
 
-## How It Works
+## 📊 Data Format
 
-1. **Parse Excel**: Reads requirement data and maps columns
-2. **Group by Epic**: Groups rows by `Requirement` column value
-3. **Create Epic**: Creates one Epic per unique requirement group
-4. **Create Stories**: Creates one Story per row, linked to its Epic
-5. **Idempotency**: Skips existing Epics/Stories to prevent duplicates
+### Excel/CSV File Format
+Files must contain the following columns:
+- **Requirement ID**: Requirement ID
+- **Requirement**: Requirement title
+- **Description**: Requirement description
+- **Priority**: Priority (P0-P4)
+- **Domain**: Domain
+- **Sub-domain**: Sub-domain
+- **Requirement type**: Requirement type
 
-## Story Format
+### Priority Mapping
+- P0 → Highest
+- P1 → High
+- P2 → Medium
+- P3 → Low
+- P4 → Lowest
 
-- **Summary**: `[Requirement ID] + first 10 words of description`
-- **Description**: Full description in Atlassian Document Format (ADF)
-- **Priority**: Mapped from Excel priority (P0-P4 → Jira priorities)
-- **Parent**: Linked to corresponding Epic (Team-managed projects)
+## 🧪 Testing
 
-## Project Structure
+### 1. Backend API Testing
+```bash
+# Health check
+curl http://54.242.32.81:8080/api/health
 
+# File validation
+curl -X POST http://54.242.32.81:8080/api/validate \
+  -H "Content-Type: application/json" \
+  -d '{"fileContent":"base64_content","fileName":"test.csv"}'
 ```
-src/
-├── convert.py          # Main conversion logic
-├── excel_parser.py     # Excel/CSV parsing
-├── jira_client.py      # Jira API integration
-├── mappings.py         # Field mapping utilities
-└── utils.py           # Common utilities
-```
 
-## Troubleshooting
+### 2. Frontend Testing
+1. Open the application in Jira
+2. Upload `sample_requirements.csv` file
+3. Verify file parsing and ticket creation
+
+## 🔍 Troubleshooting
 
 ### Common Issues
 
-1. **400 Bad Request**: Check Jira credentials and project permissions
-2. **Epic Link errors**: Project uses Team-managed mode (parent field), not Epic Link
-3. **Duplicate Epics**: Run with existing data - script will reuse existing Epics
+1. **Forge Login Failed**
+   ```bash
+   # Use environment variables
+   export FORGE_API_TOKEN="your_token"
+   export FORGE_ACCOUNT_ID="your_account_id"
+   ```
 
-### Getting Jira Credentials
+2. **Backend Connection Failed**
+   - Check EC2 instance status
+   - Verify security group configuration (port 8080)
+   - Confirm service running status
 
-1. **API Token**: https://id.atlassian.com/manage-profile/security/api-tokens
-2. **Project Key**: Found in project URL or settings
-3. **Base URL**: Your Jira instance URL (e.g., `https://company.atlassian.net`)
+3. **File Parsing Error**
+   - Check if Excel column names match
+   - Verify file format (.xlsx, .xls, .csv)
+   - Check backend logs
 
-## Development
-
-### Adding New Features
-
-- **LLM Integration**: Enhance summary generation with AI
-- **RAG-Enhanced Content Generation**: Use Retrieval-Augmented Generation (RAG) with LLMs to generate standardized BSD content aligned with enterprise templates
-- **Label Mapping**: Map Domain/Sub-domain to Jira labels
-- **Component Mapping**: Map Domain to Jira components
-- **Epic Description**: AI-summarized descriptions from grouped requirements
-
-### Testing
-
-```powershell
-# Test with sample data
-python -m src.convert -ExcelPath ".\sample_requirements.csv" -ConfigPath ".\config.yml" -DryRun
+### Log Viewing
+```bash
+# EC2 service logs
+ssh -i yaxuanm.pem ec2-user@54.242.32.81
+cat /home/ec2-user/peak3-backend/app.log
 ```
 
-## Contributing
+## 📈 Features
 
-1. Create feature branch
-2. Make changes
-3. Test thoroughly
-4. Submit pull request
+- ✅ **File Parsing**: Supports Excel and CSV formats
+- ✅ **Data Validation**: Automatic data integrity validation
+- ✅ **Jira Integration**: Automatic Epic and Story creation
+- ✅ **Priority Mapping**: Smart priority conversion
+- ✅ **Error Handling**: Comprehensive error handling mechanism
+- ✅ **Forge Integration**: Native Jira application experience
 
-## License
+## 🔐 Security Configuration
 
-Internal project for Peak3 Capstone collaboration.
+### AWS Security Group
+- Port 22 (SSH): Management access
+- Port 8080 (HTTP): API access
+- Source: 0.0.0.0/0 (can be restricted as needed)
+
+### Jira Permissions
+- read:jira-work: Read tickets
+- write:jira-work: Create/modify tickets
+
+## 📞 Technical Support
+
+### Contact Information
+- **Project Lead**: [Your Name]
+- **Deployment Date**: 2025-10-16
+- **Service Status**: 🟢 Running normally
+
+### Related Documentation
+- AWS Deployment Guide: `AWS_DEPLOYMENT_GUIDE.md`
+- Forge Integration Guide: `FORGE_PYTHON_INTEGRATION_GUIDE.md`
+- Team Message: `TEAM_MESSAGE.md`
+
+## 🎉 Project Milestones
+
+- ✅ Backend API development completed
+- ✅ EC2 deployment successful
+- ✅ Forge frontend development completed
+- ✅ Frontend-backend integration completed
+- ✅ Security configuration completed
+- 🔄 **Current Status**: Ready for production deployment
+
+---
+
+**Last Updated**: 2025-10-16  
+**Version**: 1.0.0  
+**Status**: 🟢 Production Ready

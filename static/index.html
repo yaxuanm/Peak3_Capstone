@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peak3 Requirements Automation System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Peak3 Requirements Automation System</h1>
+            <p>Automatically convert Excel/CSV requirement files to Jira tickets</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <h2>1. Upload Requirements File</h2>
+                <form id="uploadForm" class="upload-form">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />
+                        <label for="fileInput" class="file-input-label">
+                            <span class="file-input-text">Choose File</span>
+                            <span class="file-input-icon">📁</span>
+                        </label>
+                    </div>
+                    <div id="fileInfo" class="file-info" style="display: none;"></div>
+                </form>
+            </div>
+
+            <div class="config-section">
+                <h2>2. Configure Jira Connection</h2>
+                <form id="configForm" class="config-form">
+                    <div class="form-group">
+                        <label for="baseUrl">Jira Base URL:</label>
+                        <input type="url" id="baseUrl" placeholder="https://yourcompany.atlassian.net" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address:</label>
+                        <input type="email" id="email" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apiToken">API Token:</label>
+                        <input type="password" id="apiToken" placeholder="ATATT3x..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectKey">Project Key:</label>
+                        <input type="text" id="projectKey" placeholder="REQ" required>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-section">
+                <h2>3. Process File</h2>
+                <div class="processing-mode">
+                    <label>
+                        <input type="radio" name="processingMode" value="original" checked>
+                        Use Original Python Backend Logic
+                    </label>
+                    <label>
+                        <input type="radio" name="processingMode" value="forge">
+                        Use Original Forge Frontend Logic
+                    </label>
+                </div>
+                <div class="button-group">
+                    <button type="button" id="validateButton" class="btn btn-secondary" disabled>
+                        Validate File
+                    </button>
+                    <button type="button" id="processButton" class="btn btn-primary" disabled>
+                        Create Jira Tickets
+                    </button>
+                </div>
+            </div>
+
+            <div id="statusArea" class="status-area"></div>
+        </main>
+
+        <footer>
+            <div class="help-section">
+                <h3>Usage Instructions</h3>
+                <ul>
+                    <li>Supported file formats: .xlsx, .xls, .csv</li>
+                    <li>Excel files must contain these columns: Requirement ID, Requirement, Description, Priority, Domain, Sub-domain, Requirement type</li>
+                    <li>Priority format: P0 (Highest), P1 (High), P2 (Medium), P3 (Low), P4 (Lowest)</li>
+                    <li>Recommend clicking "Validate File" first to check format correctness</li>
+                </ul>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const validateButton = document.getElementById('validateButton');
+        const processButton = document.getElementById('processButton');
+        const statusArea = document.getElementById('statusArea');
+        const configForm = document.getElementById('configForm');
+
+        // API base URL - 可以根据部署环境调整
+        const API_BASE_URL = window.location.origin + '/api';
+
+        // File input change handler
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                showFileInfo(file);
+                updateButtonStates();
+            } else {
+                hideFileInfo();
+                updateButtonStates();
+            }
+        });
+
+        // Form validation
+        configForm.addEventListener('input', updateButtonStates);
+
+        // Button event listeners
+        validateButton.addEventListener('click', validateFile);
+        processButton.addEventListener('click', processFile);
+
+        function showFileInfo(file) {
+            fileInfo.innerHTML = `
+                <div class="file-details">
+                    <strong>File Name:</strong> ${file.name}<br>
+                    <strong>Size:</strong> ${formatFileSize(file.size)}<br>
+                    <strong>Type:</strong> ${file.type || 'Unknown'}
+                </div>
+            `;
+            fileInfo.style.display = 'block';
+        }
+
+        function hideFileInfo() {
+            fileInfo.style.display = 'none';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateButtonStates() {
+            const hasFile = fileInput.files.length > 0;
+            const hasValidConfig = isConfigValid();
+            
+            validateButton.disabled = !hasFile;
+            processButton.disabled = !hasFile || !hasValidConfig;
+        }
+
+        function isConfigValid() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const apiToken = document.getElementById('apiToken').value.trim();
+            const projectKey = document.getElementById('projectKey').value.trim();
+            
+            return baseUrl && email && apiToken && projectKey;
+        }
+
+        function getJiraConfig() {
+            return {
+                baseUrl: document.getElementById('baseUrl').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                apiToken: document.getElementById('apiToken').value.trim(),
+                projectKey: document.getElementById('projectKey').value.trim()
+            };
+        }
+
+        async function validateFile() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            try {
+                showStatus('⏳ Validating file...', 'info');
+                
+                const base64 = await fileToBase64(file);
+                const response = await fetch(`${API_BASE_URL}/validate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fileContent: base64,
+                        fileName: file.name
+                    })
+                });
+
+                // Check HTTP status first
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`HTTP Error ${response.status}:`, errorText);
+                    showStatus(`HTTP Error ${response.status}: ${errorText}`, 'error');
+                    return;
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('✅ File validation successful! You can proceed to create Jira tickets.', 'success');
+                } else {
+                    showStatus(`❌ Validation failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Validation error:', error);
+                showStatus(`❌ Error occurred during validation: ${error.message}`, 'error');
+            }
+        }
+
+        async function processFile() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            try {
+                const processingMode = document.querySelector('input[name="processingMode"]:checked').value;
+                const endpoint = processingMode === 'forge' ? '/forge/process' : '/process';
+                const modeText = processingMode === 'forge' ? 'Original Forge Frontend Logic' : 'Original Python Backend Logic';
+                
+                showStatus(`Processing file using ${modeText} and creating Jira tickets...`, 'info');
+                
+                const base64 = await fileToBase64(file);
+                const jiraConfig = getJiraConfig();
+                
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fileContent: base64,
+                        fileName: file.name,
+                        jiraConfig: jiraConfig
+                    })
+                });
+
+                // Check HTTP status first
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`HTTP Error ${response.status}:`, errorText);
+                    showStatus(`HTTP Error ${response.status}: ${errorText}`, 'error');
+                    return;
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    let successMessage = 'Jira tickets created successfully!';
+                    if (processingMode === 'forge' && result.parsed) {
+                        successMessage += ` (Processed ${result.parsed.recordCount} records, created ${result.parsed.epicCount} Epics)`;
+                    }
+                    showStatus(successMessage, 'success');
+                } else {
+                    showStatus(`Processing failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Processing error:', error);
+                showStatus(`Error occurred during processing: ${error.message}`, 'error');
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function showStatus(message, type = 'info') {
+            statusArea.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            statusArea.style.display = 'block';
+        }
+
+        // Initialize
+        updateButtonStates();
+    </script>
+</body>
+</html>

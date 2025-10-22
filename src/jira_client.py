@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 import time
 import requests
 
-from .utils import jql_escape_literal
+from utils import jql_escape_literal
 
 
 class JiraClient:
@@ -60,7 +60,7 @@ class JiraClient:
         if issue_type:
             jql += f' AND issuetype = "{jql_escape_literal(issue_type)}"'
         try:
-            data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 1})
+            data = self._get("/rest/api/3/search/jql", params={"jql": jql, "maxResults": 1})
         except Exception:
             # Fallback: treat JQL 400 as not found, proceed with creation
             return None
@@ -74,7 +74,7 @@ class JiraClient:
         # Use ~ operator for summary field (fuzzy match) since = is not supported
         jql = f'project = "{self.project_key}" AND issuetype = "Epic" AND summary ~ "{esc}"'
         try:
-            data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 1})
+            data = self._get("/rest/api/3/search/jql", params={"jql": jql, "maxResults": 1})
         except Exception:
             return None
         if data.get("dryRun"):

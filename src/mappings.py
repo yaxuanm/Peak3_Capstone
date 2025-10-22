@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Tuple
 
-from .utils import coalesce_str, ensure_list, take_first_words
+from utils import coalesce_str, ensure_list, take_first_words
 
 
 def map_priority(priority_text: str, priority_map: Dict[str, str]) -> Optional[str]:

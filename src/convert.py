@@ -3,10 +3,10 @@ import argparse
 from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple
 
-from .excel_parser import normalize_records, read_excel_records
-from .jira_client import JiraClient
-from .mappings import build_components, build_labels, make_story_summary, map_priority
-from .utils import coalesce_str, load_env, load_yaml_config
+from excel_parser import normalize_records, read_excel_records
+from jira_client import JiraClient
+from mappings import build_components, build_labels, make_story_summary, map_priority
+from utils import coalesce_str, load_env, load_yaml_config
 
 
 def group_by_epic(records: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
@@ -52,6 +52,11 @@ def run(excel_path: str, config_path: str, dry_run: bool) -> None:
 
     records_raw = read_excel_records(excel_path)
     records = normalize_records(records_raw, columns_cfg)
+    # Guard: filter out empty rows to avoid creating blank tickets
+    records = [
+        r for r in records
+        if coalesce_str(r.get("requirement_id")) and coalesce_str(r.get("requirement"))
+    ]
 
     groups = group_by_epic(records)
 
@@ -65,8 +70,12 @@ def run(excel_path: str, config_path: str, dry_run: bool) -> None:
             print(f"[DRY RUN]   Epic Description Preview: {epic_desc[:120]}...")
             for row in items:
                 req_id = coalesce_str(row.get("requirement_id"))
+                if not req_id:
+                    continue
                 description = coalesce_str(row.get("description"))
                 summary = make_story_summary(req_id, description, story_title_words)
+                if summary == "Untitled Story":
+                    continue
                 priority_name = map_priority(coalesce_str(row.get("priority")), priority_map)
                 labels = build_labels(row, labels_from)
                 components = build_components(row, component_from)
@@ -99,8 +108,12 @@ def run(excel_path: str, config_path: str, dry_run: bool) -> None:
         # Create stories
         for row in items:
             req_id = coalesce_str(row.get("requirement_id"))
+            if not req_id:
+                continue
             description = coalesce_str(row.get("description"))
             summary = make_story_summary(req_id, description, story_title_words)
+            if summary == "Untitled Story":
+                continue
 
             # Idempotent story by requirement ID
             existing = client.search_issue_by_requirement_id(req_id, issue_type="Story")
