@@ -52,16 +52,6 @@
 
             <div class="action-section">
                 <h2>3. Process File</h2>
-                <div class="processing-mode">
-                    <label>
-                        <input type="radio" name="processingMode" value="original" checked>
-                        Use Original Python Backend Logic
-                    </label>
-                    <label>
-                        <input type="radio" name="processingMode" value="forge">
-                        Use Original Forge Frontend Logic
-                    </label>
-                </div>
                 <div class="button-group">
                     <button type="button" id="validateButton" class="btn btn-secondary" disabled>
                         Validate File
@@ -73,6 +63,59 @@
             </div>
 
             <div id="statusArea" class="status-area"></div>
+            
+            <!-- Data Validation Results Section -->
+            <div id="validationResults" class="validation-results" style="display: none;">
+                <h3>Data Validation Results</h3>
+                <div class="validation-summary">
+                    <div class="summary-stats">
+                        <span class="stat-item">
+                            <span class="stat-label">Total Records:</span>
+                            <span id="totalRecords" class="stat-value">0</span>
+                        </span>
+                        <span class="stat-item">
+                            <span class="stat-label">Valid:</span>
+                            <span id="validRecords" class="stat-value valid">0</span>
+                        </span>
+                        <span class="stat-item">
+                            <span class="stat-label">Issues:</span>
+                            <span id="issueRecords" class="stat-value issues">0</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="validation-details">
+                    <div class="details-header">
+                        <h4>Detailed Results</h4>
+                        <button id="toggleDetails" class="btn btn-secondary btn-sm">Show Details</button>
+                    </div>
+                    <div id="validationDetails" class="validation-details-content" style="display: none;">
+                        <div class="details-tabs">
+                            <button class="tab-btn active" data-tab="all">All Records</button>
+                            <button class="tab-btn" data-tab="valid">Valid Only</button>
+                            <button class="tab-btn" data-tab="issues">Issues Only</button>
+                        </div>
+                        <div id="recordsList" class="records-list"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Export Section -->
+            <div id="exportSection" class="export-section" style="display: none;">
+                <h3>Export Results</h3>
+                <div class="export-options">
+                    <button id="exportCsv" class="btn btn-primary">
+                        📊 Export to CSV
+                    </button>
+                    <button id="exportExcel" class="btn btn-primary">
+                        📈 Export to Excel
+                    </button>
+                    <button id="copyLinks" class="btn btn-secondary">
+                        📋 Copy Jira Links
+                    </button>
+                </div>
+                <div id="exportStatus" class="export-status"></div>
+            </div>
         </main>
 
         <footer>
@@ -96,6 +139,24 @@
         const processButton = document.getElementById('processButton');
         const statusArea = document.getElementById('statusArea');
         const configForm = document.getElementById('configForm');
+        
+        // New elements for validation and export
+        const validationResults = document.getElementById('validationResults');
+        const totalRecords = document.getElementById('totalRecords');
+        const validRecords = document.getElementById('validRecords');
+        const issueRecords = document.getElementById('issueRecords');
+        const toggleDetails = document.getElementById('toggleDetails');
+        const validationDetails = document.getElementById('validationDetails');
+        const recordsList = document.getElementById('recordsList');
+        const exportSection = document.getElementById('exportSection');
+        const exportCsv = document.getElementById('exportCsv');
+        const exportExcel = document.getElementById('exportExcel');
+        const copyLinks = document.getElementById('copyLinks');
+        const exportStatus = document.getElementById('exportStatus');
+        
+        // Global variables for storing results
+        let currentValidationData = null;
+        let currentJiraResults = null;
 
         // API base URL - 可以根据部署环境调整
         const API_BASE_URL = window.location.origin + '/api';
@@ -118,6 +179,20 @@
         // Button event listeners
         validateButton.addEventListener('click', validateFile);
         processButton.addEventListener('click', processFile);
+        
+        // New event listeners
+        toggleDetails.addEventListener('click', toggleValidationDetails);
+        exportCsv.addEventListener('click', () => exportResults('csv'));
+        exportExcel.addEventListener('click', () => exportResults('excel'));
+        copyLinks.addEventListener('click', copyJiraLinks);
+        
+        // Tab switching for validation details
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tab = e.target.dataset.tab;
+                switchValidationTab(tab);
+            });
+        });
 
         function showFileInfo(file) {
             fileInfo.innerHTML = `
@@ -211,8 +286,15 @@
                 
                 if (result.success) {
                     showStatus('✅ File validation successful! You can proceed to create Jira tickets.', 'success');
+                    
+                    // Store validation data and display results
+                    if (result.validationData) {
+                        currentValidationData = result.validationData;
+                        displayValidationResults(result.validationData);
+                    }
                 } else {
                     showStatus(`❌ Validation failed: ${result.error}`, 'error');
+                    hideValidationResults();
                 }
             } catch (error) {
                 console.error('Validation error:', error);
@@ -225,11 +307,7 @@
             if (!file) return;
 
             try {
-                const processingMode = document.querySelector('input[name="processingMode"]:checked').value;
-                const endpoint = processingMode === 'forge' ? '/forge/process' : '/process';
-                const modeText = processingMode === 'forge' ? 'Original Forge Frontend Logic' : 'Original Python Backend Logic';
-                
-                showStatus(`Processing file using ${modeText} and creating Jira tickets...`, 'info');
+                showStatus('Processing file and creating Jira tickets...', 'info');
                 
                 console.log('Starting file processing...');
                 const base64 = await fileToBase64(file);
@@ -245,7 +323,7 @@
                 };
                 console.log('Request data prepared, file name:', file.name);
                 
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                const response = await fetch(`${API_BASE_URL}/process`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -268,13 +346,16 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    let successMessage = 'Jira tickets created successfully!';
-                    if (processingMode === 'forge' && result.parsed) {
-                        successMessage += ` (Processed ${result.parsed.recordCount} records, created ${result.parsed.epicCount} Epics)`;
+                    showStatus('Jira tickets created successfully!', 'success');
+                    
+                    // Store Jira results and show export options
+                    if (result.jiraResults) {
+                        currentJiraResults = result.jiraResults;
+                        displayExportSection(result.jiraResults);
                     }
-                    showStatus(successMessage, 'success');
                 } else {
                     showStatus(`Processing failed: ${result.error}`, 'error');
+                    hideExportSection();
                 }
             } catch (error) {
                 console.error('Processing error:', error);
@@ -298,6 +379,174 @@
         function showStatus(message, type = 'info') {
             statusArea.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
             statusArea.style.display = 'block';
+        }
+
+        // New functions for validation and export features
+        
+        function displayValidationResults(validationData) {
+            // Update summary stats
+            totalRecords.textContent = validationData.totalRecords || 0;
+            validRecords.textContent = validationData.validRecords || 0;
+            issueRecords.textContent = validationData.issueRecords || 0;
+            
+            // Show validation results section
+            validationResults.style.display = 'block';
+            
+            // Display detailed records
+            displayValidationDetails(validationData.records || []);
+        }
+        
+        function hideValidationResults() {
+            validationResults.style.display = 'none';
+        }
+        
+        function displayValidationDetails(records) {
+            recordsList.innerHTML = '';
+            
+            records.forEach(record => {
+                const recordElement = document.createElement('div');
+                recordElement.className = `record-item ${record.hasIssues ? 'issue' : 'valid'}`;
+                
+                const issuesHtml = record.issues && record.issues.length > 0 ? `
+                    <div class="record-issues">
+                        <h5>Issues Found:</h5>
+                        <ul>
+                            ${record.issues.map(issue => `<li>${issue}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : '';
+                
+                recordElement.innerHTML = `
+                    <div class="record-header">
+                        <span class="record-id">${record.requirementId || 'Unknown ID'}</span>
+                        <span class="record-status ${record.hasIssues ? 'issue' : 'valid'}">
+                            ${record.hasIssues ? 'Issues' : 'Valid'}
+                        </span>
+                    </div>
+                    <div class="record-details">
+                        <strong>Requirement:</strong> ${record.requirement || 'N/A'}<br>
+                        <strong>Priority:</strong> ${record.priority || 'N/A'}<br>
+                        <strong>Domain:</strong> ${record.domain || 'N/A'}
+                    </div>
+                    ${issuesHtml}
+                `;
+                
+                recordsList.appendChild(recordElement);
+            });
+        }
+        
+        function toggleValidationDetails() {
+            const isVisible = validationDetails.style.display !== 'none';
+            validationDetails.style.display = isVisible ? 'none' : 'block';
+            toggleDetails.textContent = isVisible ? 'Show Details' : 'Hide Details';
+        }
+        
+        function switchValidationTab(tab) {
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            
+            // Filter records based on tab
+            if (!currentValidationData || !currentValidationData.records) return;
+            
+            let filteredRecords = currentValidationData.records;
+            if (tab === 'valid') {
+                filteredRecords = currentValidationData.records.filter(r => !r.hasIssues);
+            } else if (tab === 'issues') {
+                filteredRecords = currentValidationData.records.filter(r => r.hasIssues);
+            }
+            
+            displayValidationDetails(filteredRecords);
+        }
+        
+        function displayExportSection(jiraResults) {
+            exportSection.style.display = 'block';
+            exportStatus.textContent = `Ready to export ${jiraResults.createdTickets || 0} Jira tickets`;
+        }
+        
+        function hideExportSection() {
+            exportSection.style.display = 'none';
+        }
+        
+        function exportResults(format) {
+            if (!currentJiraResults) {
+                exportStatus.textContent = 'No data to export';
+                return;
+            }
+            
+            try {
+                const data = currentJiraResults.tickets || [];
+                const filename = `jira_tickets_${new Date().toISOString().split('T')[0]}.${format}`;
+                
+                if (format === 'csv') {
+                    exportToCSV(data, filename);
+                } else if (format === 'excel') {
+                    exportToExcel(data, filename);
+                }
+                
+                exportStatus.textContent = `✅ Exported ${data.length} tickets to ${filename}`;
+            } catch (error) {
+                exportStatus.textContent = `❌ Export failed: ${error.message}`;
+            }
+        }
+        
+        function exportToCSV(data, filename) {
+            const headers = ['Requirement ID', 'Jira Key', 'Jira Link', 'Summary', 'Priority', 'Status'];
+            const csvContent = [
+                headers.join(','),
+                ...data.map(ticket => [
+                    ticket.requirementId || '',
+                    ticket.jiraKey || '',
+                    ticket.jiraLink || '',
+                    `"${(ticket.summary || '').replace(/"/g, '""')}"`,
+                    ticket.priority || '',
+                    ticket.status || ''
+                ].join(','))
+            ].join('\n');
+            
+            downloadFile(csvContent, filename, 'text/csv');
+        }
+        
+        function exportToExcel(data, filename) {
+            // For Excel export, we'll create a CSV with .xlsx extension
+            // In a real implementation, you'd use a library like SheetJS
+            exportToCSV(data, filename.replace('.xlsx', '.csv'));
+        }
+        
+        function copyJiraLinks() {
+            if (!currentJiraResults || !currentJiraResults.tickets) {
+                exportStatus.textContent = 'No Jira links to copy';
+                return;
+            }
+            
+            const links = currentJiraResults.tickets
+                .filter(ticket => ticket.jiraLink)
+                .map(ticket => `${ticket.jiraKey}: ${ticket.jiraLink}`)
+                .join('\n');
+            
+            if (links) {
+                navigator.clipboard.writeText(links).then(() => {
+                    exportStatus.textContent = `✅ Copied ${currentJiraResults.tickets.length} Jira links to clipboard`;
+                }).catch(() => {
+                    exportStatus.textContent = '❌ Failed to copy links to clipboard';
+                });
+            } else {
+                exportStatus.textContent = 'No Jira links available';
+            }
+        }
+        
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         // Initialize

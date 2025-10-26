@@ -451,13 +451,13 @@ def main():
     file_path = sys.argv[1]
     api_key = os.getenv("OPENAI_API_KEY")
     model = DataQualityChecker(api_key)
-    print(f"📂 Loading file: {file_path}")
+    print(f"Loading file: {file_path}")
 
     if file_path.endswith(".csv"):
         df = pd.read_csv(file_path)
     else:
         df = model.load_excel_sheet(file_path, "1. Requirements - Internal")
-    print("✅ Loaded rows:", len(df))
+    print("Loaded rows:", len(df))
 
     results = model.data_quality_check(df)
 

@@ -39,7 +39,7 @@ class JiraClient:
                     continue
             # Better error logging
             if resp.status_code >= 400:
-                print(f"❌ Jira API Error {resp.status_code}:")
+                print(f"Jira API Error {resp.status_code}:")
                 print(f"URL: {url}")
                 print(f"Request body: {kwargs.get('json', 'None')}")
                 print(f"Response: {resp.text}")
@@ -65,8 +65,8 @@ class JiraClient:
         if issue_type:
             jql += f' AND issuetype = "{jql_escape_literal(issue_type)}"'
         try:
-            # Use the JQL endpoint
-            data = self._get("/rest/api/3/search/jql", params={"jql": jql, "maxResults": 1})
+            # Use the standard search endpoint
+            data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 1})
         except Exception:
             # Fallback: treat JQL 400 as not found, proceed with creation
             return None
