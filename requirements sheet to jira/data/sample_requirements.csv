@@ -1,0 +1,22 @@
+﻿﻿Requirement ID,Requirement type,Sales product,Tenant/Partner,Domain,Sub-domain,Requirement,Description,Priority
+TRAVEL-CMU-PC-024,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,"The CMU Travel Insurance Homepage (Regular SI) must enable customers to explore options, get quotes, and purchase. Include CTAs and accessibility.",P2
+TRAVEL-CMU-PC-025,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,"Trip Selection page must let customers select plan, show indicators and back button.",P2
+TRAVEL-CMU-PC-026,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,"Trip Dates page must capture dates, validate input, include back button and links.",P3
+TRAVEL-CMU-PC-027,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,"Trip Booking must confirm details, show steps/status, include Subscribe/Save/View actions.",P2
+TRAVEL-CMU-PC-028,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,"Plan Selection shows plan options (Essential/Smart/Comfort), filters, Modify inputs, pricing/discount.",P2
+TRAVEL-CMU-PC-029,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,Optional Coverages allow add/remove coverages with indicators and validation.,P3
+TRAVEL-CMU-PC-030,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,"Payment Processing must support multiple payment methods, validate cards, and handle secure transactions.",P1
+TRAVEL-CMU-PC-031,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,"Confirmation Page must display booking summary, policy details, and download options.",P2
+TRAVEL-CMU-PC-032,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,Email Notifications must send booking confirmations and policy documents to customers.,P2
+TRAVEL-CMU-PC-033,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,2 - Claims Management,Claims Submission portal must allow customers to upload documents and track claim status.,P1
+TRAVEL-CMU-PC-034,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,2 - Claims Management,Document Upload must support multiple file formats with size validation and virus scanning.,P2
+TRAVEL-CMU-PC-035,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,2 - Claims Management,Claim Status Tracking must provide real-time updates and estimated processing times.,P2
+TRAVEL-CMU-PC-036,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,3 - Customer Support,Live Chat integration must connect customers with support agents during business hours.,P2
+TRAVEL-CMU-PC-037,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,3 - Customer Support,FAQ System must provide searchable knowledge base with categorized help articles.,P3
+TRAVEL-CMU-PC-038,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,3 - Customer Support,Ticket Management must allow customers to create and track support requests.,P2
+TRAVEL-CMU-PC-039,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,4 - Policy Management,Policy Renewal must send reminders and enable online renewal with updated terms.,P1
+TRAVEL-CMU-PC-040,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,4 - Policy Management,Policy Modification must allow customers to update coverage and personal information.,P2
+TRAVEL-CMU-PC-041,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,4 - Policy Management,Cancellation Process must handle refunds and provide cancellation confirmation.,P2
+TRAVEL-CMU-PC-042,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,5 - Reporting & Analytics,"Dashboard Analytics must display booking trends, conversion rates, and customer insights.",P2
+TRAVEL-CMU-PC-043,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,5 - Reporting & Analytics,Revenue Reports must generate monthly/quarterly financial summaries for management.,P1
+TRAVEL-CMU-PC-044,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,5 - Reporting & Analytics,Customer Behavior Analytics must track user journeys and identify optimization opportunities.,P2
