@@ -51,8 +51,8 @@ python api_standalone.py
 2. 点击 "Choose File" 按钮
 3. 选择 `data/sample_requirements.csv` 文件
 4. 配置Jira设置（使用您的Jira信息）
-5. 点击 "Validate File" 查看验证结果
-6. 点击 "Create Jira Tickets" 创建票据
+5. 点击 "Validate File" 查看验证结果和AI生成的摘要
+6. 点击 "Create Jira Tickets" 创建票据（包含LLM增强的描述）
 7. 使用导出功能下载结果
 
 ### 2. 使用自己的数据测试

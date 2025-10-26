@@ -1,302 +1,322 @@
-# Peak3 Requirements Automation - 产品需求文档 (PRD)
+# Peak3 Requirements Automation - Product Requirements Document (PRD)
 
-## 1. 产品概述
+## 1. Product Overview
 
-### 1.1 产品名称
+### 1.1 Product Name
 Peak3 Requirements Automation
 
-### 1.2 产品定位
-一个基于Web的需求文档自动化处理平台，专门用于将Excel/CSV格式的需求文档自动转换为Jira票据，提高需求管理效率。
+### 1.2 Product Positioning
+A web-based automated requirement document processing platform specifically designed to automatically convert Excel/CSV format requirement documents into Jira tickets, improving requirement management efficiency.
 
-### 1.3 目标用户
-- 产品经理
-- 项目经理
-- 业务分析师
-- 开发团队
-- 质量保证团队
+### 1.3 Target Users
+- Product Managers
+- Project Managers
+- Business Analysts
+- Development Teams
+- Quality Assurance Teams
 
-## 2. 业务目标
+## 2. Business Objectives
 
-### 2.1 主要目标
-- 自动化需求文档处理流程
-- 减少手动创建Jira票据的工作量
-- 提高需求数据质量和一致性
-- 简化需求管理流程
+### 2.1 Primary Goals
+- Automate requirement document processing workflows
+- Reduce manual Jira ticket creation workload
+- Improve requirement data quality and consistency
+- Simplify requirement management processes
 
-### 2.2 成功指标
-- 处理时间减少80%
-- 数据错误率降低90%
-- 用户满意度达到85%以上
-- 系统可用性达到99%以上
+### 2.2 Success Metrics
+- 80% reduction in processing time
+- 90% reduction in data error rate
+- 85%+ user satisfaction
+- 99%+ system availability
 
-## 3. 功能需求
+## 3. Functional Requirements
 
-### 3.1 核心功能
+### 3.1 Core Features
 
-#### 3.1.1 文件上传与解析
-**功能描述**: 支持用户上传Excel和CSV格式的需求文档
+#### 3.1.1 File Upload and Parsing
+**Feature Description**: Support users to upload Excel and CSV format requirement documents
 
-**详细需求**:
-- 支持拖拽上传和点击上传两种方式
-- 支持.xlsx和.csv文件格式
-- 文件大小限制：最大10MB
-- 自动检测文件格式和编码
-- 支持UTF-8和UTF-8-sig编码
+**Detailed Requirements**:
+- Support both drag-and-drop and click-to-upload methods
+- Support .xlsx and .csv file formats
+- File size limit: maximum 10MB
+- Automatic file format and encoding detection
+- Support UTF-8 and UTF-8-sig encoding
 
-**验收标准**:
-- 用户能够成功上传Excel和CSV文件
-- 系统能够正确解析文件内容
-- 上传失败时显示清晰的错误信息
+**Acceptance Criteria**:
+- Users can successfully upload Excel and CSV files
+- System can correctly parse file content
+- Clear error messages displayed when upload fails
 
-#### 3.1.2 数据验证
-**功能描述**: 对上传的需求数据进行完整性、格式和业务规则验证
+#### 3.1.2 Data Validation
+**Feature Description**: Validate uploaded requirement data for completeness, format, and business rules
 
-**详细需求**:
-- 必填字段检查（Requirement ID, Requirement, Description, Priority）
-- 数据格式验证（优先级格式、ID格式等）
-- 数据长度验证（描述最小长度等）
-- AI驱动的数据质量分析
-- 实时验证结果展示
+**Detailed Requirements**:
+- Required field checking (Requirement ID, Requirement, Description, Priority)
+- Data format validation (priority format, ID format, etc.)
+- Data length validation (minimum description length, etc.)
+- AI-driven data quality analysis
+- LLM-generated requirement summaries
+- Real-time validation result display
 
-**验收标准**:
-- 系统能够识别所有数据问题
-- 验证结果清晰易懂
-- 提供具体的修复建议
+**Acceptance Criteria**:
+- System can identify all data issues
+- Validation results are clear and understandable
+- Provide specific repair suggestions
+- LLM generates meaningful summaries for each requirement
 
-#### 3.1.3 Jira集成
-**功能描述**: 自动在Jira中创建Epic和Story票据
+#### 3.1.3 Jira Integration
+**Feature Description**: Automatically create Epic and Story tickets in Jira
 
-**详细需求**:
-- 支持Jira Cloud平台
-- 自动按Domain分组创建Epic
-- 为每个需求创建对应的Story
-- 优先级自动映射
-- 防重复创建机制
+**Detailed Requirements**:
+- Support Jira Cloud platform
+- Automatically group by Domain to create Epics
+- Create corresponding Stories for each requirement
+- Automatic priority mapping
+- LLM-enhanced ticket descriptions and summaries
+- Duplicate prevention mechanism
 
-**验收标准**:
-- 能够成功连接到Jira
-- 正确创建Epic和Story
-- 避免重复创建票据
+**Acceptance Criteria**:
+- Can successfully connect to Jira
+- Correctly create Epics and Stories
+- Avoid duplicate ticket creation
+- Jira tickets contain AI-generated, high-quality descriptions
 
-#### 3.1.4 结果导出
-**功能描述**: 提供多种格式的结果导出功能
+#### 3.1.4 AI-Powered Content Generation
+**Feature Description**: Use LLM to generate high-quality content for requirements and Jira tickets
 
-**详细需求**:
-- 支持CSV和Excel格式导出
-- 包含完整的票据信息
-- 提供Jira链接
-- 支持一键复制功能
+**Detailed Requirements**:
+- Generate concise requirement summaries
+- Create user story format descriptions
+- Enhance ticket descriptions with business context
+- Provide acceptance criteria suggestions
+- Maintain consistency across generated content
 
-**验收标准**:
-- 导出的文件格式正确
-- 包含所有必要信息
-- 链接可正常访问
+**Acceptance Criteria**:
+- Generated summaries are clear and concise
+- Content follows standard user story format
+- Descriptions are business-relevant and actionable
+- Generated content is consistent in quality and style
 
-### 3.2 用户界面需求
+#### 3.1.5 Result Export
+**Feature Description**: Provide multiple format result export functionality
 
-#### 3.2.1 主界面
-**功能描述**: 提供直观易用的主操作界面
+**Detailed Requirements**:
+- Support CSV and Excel format export
+- Include complete ticket information with LLM-generated content
+- Provide Jira links
+- Support one-click copy functionality
 
-**详细需求**:
-- 清晰的操作流程指引
-- 实时状态反馈
-- 错误信息提示
-- 响应式设计
+**Acceptance Criteria**:
+- Exported file format is correct
+- Contains all necessary information including AI-generated content
+- Links are accessible
 
-**验收标准**:
-- 界面简洁直观
-- 操作流程清晰
-- 支持不同屏幕尺寸
+### 3.2 User Interface Requirements
 
-#### 3.2.2 配置界面
-**功能描述**: 提供Jira连接和项目配置界面
+#### 3.2.1 Main Interface
+**Feature Description**: Provide intuitive and easy-to-use main operation interface
 
-**详细需求**:
-- Jira URL配置
-- 认证信息输入
-- 项目设置
-- 列名映射配置
+**Detailed Requirements**:
+- Clear operation process guidance
+- Real-time status feedback
+- Error message prompts
+- Responsive design
 
-**验收标准**:
-- 配置项清晰明确
-- 支持配置保存
-- 提供配置验证
+**Acceptance Criteria**:
+- Interface is simple and intuitive
+- Operation process is clear
+- Support different screen sizes
 
-### 3.3 系统管理需求
+#### 3.2.2 Configuration Interface
+**Feature Description**: Provide Jira connection and project configuration interface
 
-#### 3.3.1 配置管理
-**功能描述**: 支持灵活的配置管理
+**Detailed Requirements**:
+- Jira URL configuration
+- Authentication information input
+- Project settings
+- Column name mapping configuration
 
-**详细需求**:
-- 列名映射配置
-- 优先级映射配置
-- 项目设置配置
-- 环境变量配置
+**Acceptance Criteria**:
+- Configuration items are clear and explicit
+- Support configuration saving
+- Provide configuration validation
 
-**验收标准**:
-- 配置项完整
-- 支持动态修改
-- 配置验证机制
+### 3.3 System Management Requirements
 
-#### 3.3.2 错误处理
-**功能描述**: 完善的错误处理和用户提示
+#### 3.3.1 Configuration Management
+**Feature Description**: Support flexible configuration management
 
-**详细需求**:
-- 文件格式错误处理
-- 网络连接错误处理
-- API调用错误处理
-- 用户友好的错误信息
+**Detailed Requirements**:
+- Column name mapping configuration
+- Priority mapping configuration
+- Project settings configuration
+- Environment variable configuration
 
-**验收标准**:
-- 错误信息清晰明确
-- 提供解决建议
-- 系统稳定性良好
+**Acceptance Criteria**:
+- Configuration items are complete
+- Support dynamic modification
+- Configuration validation mechanism
 
-## 4. 非功能需求
+#### 3.3.2 Error Handling
+**Feature Description**: Comprehensive error handling and user prompts
 
-### 4.1 性能需求
-- 文件处理时间：< 30秒（1000条记录）
-- 系统响应时间：< 3秒
-- 并发用户数：支持10个并发用户
-- 内存使用：< 512MB
+**Detailed Requirements**:
+- File format error handling
+- Network connection error handling
+- API call error handling
+- User-friendly error messages
 
-### 4.2 安全需求
-- API密钥安全存储
-- 文件上传安全检查
-- 输入数据验证
-- 错误信息脱敏
+**Acceptance Criteria**:
+- Error messages are clear and explicit
+- Provide solution suggestions
+- Good system stability
 
-### 4.3 可用性需求
-- 系统可用性：99%以上
-- 支持主流浏览器
-- 移动端基本支持
-- 用户界面友好
+## 4. Non-Functional Requirements
 
-### 4.4 兼容性需求
+### 4.1 Performance Requirements
+- File processing time: < 30 seconds (1000 records)
+- System response time: < 3 seconds
+- Concurrent users: support 10 concurrent users
+- Memory usage: < 512MB
+
+### 4.2 Security Requirements
+- Secure API key storage
+- File upload security checks
+- Input data validation
+- Error message desensitization
+
+### 4.3 Usability Requirements
+- System availability: 99%+
+- Support mainstream browsers
+- Basic mobile support
+- User-friendly interface
+
+### 4.4 Compatibility Requirements
 - Python 3.8+
-- 主流操作系统支持
-- 现代浏览器支持
-- Jira Cloud兼容
+- Mainstream operating system support
+- Modern browser support
+- Jira Cloud compatibility
 
-## 5. 技术架构
+## 5. Technical Architecture
 
-### 5.1 技术栈
-- **后端**: Python 3.8+, Flask, Pandas
-- **前端**: HTML5, CSS3, JavaScript ES6+
-- **集成**: Jira REST API, OpenAI API
-- **部署**: 本地部署
+### 5.1 Technology Stack
+- **Backend**: Python 3.8+, Flask, Pandas
+- **Frontend**: HTML5, CSS3, JavaScript ES6+
+- **Integration**: Jira REST API, OpenAI API
+- **Deployment**: Local deployment
 
-### 5.2 系统架构
+### 5.2 System Architecture
 ```
-用户界面层 (HTML/CSS/JS)
+User Interface Layer (HTML/CSS/JS)
     ↓
-Web服务层 (Flask)
+Web Service Layer (Flask)
     ↓
-业务逻辑层 (Python)
+Business Logic Layer (Python)
     ↓
-数据访问层 (Pandas/API)
+Data Access Layer (Pandas/API)
     ↓
-外部服务 (Jira/OpenAI)
+External Services (Jira/OpenAI)
 ```
 
-### 5.3 数据流
-1. 用户上传文件
-2. 系统解析文件内容
-3. 数据验证和质量检查
-4. 连接Jira创建票据
-5. 返回结果和导出选项
+### 5.3 Data Flow
+1. User uploads file
+2. System parses file content
+3. Data validation and quality checking
+4. Connect to Jira to create tickets
+5. Return results and export options
 
-## 6. 用户故事
+## 6. User Stories
 
-### 6.1 产品经理
-**作为产品经理，我希望能够**:
-- 快速上传需求文档并自动创建Jira票据
-- 查看数据验证结果，确保需求质量
-- 导出处理结果，便于跟踪和管理
+### 6.1 Product Manager
+**As a Product Manager, I want to**:
+- Quickly upload requirement documents and automatically create Jira tickets
+- View data validation results to ensure requirement quality
+- Export processing results for tracking and management
 
-### 6.2 项目经理
-**作为项目经理，我希望能够**:
-- 批量处理大量需求文档
-- 按功能域自动组织需求
-- 获得完整的项目需求概览
+### 6.2 Project Manager
+**As a Project Manager, I want to**:
+- Batch process large amounts of requirement documents
+- Automatically organize requirements by functional domain
+- Get a complete project requirement overview
 
-### 6.3 开发团队
-**作为开发团队成员，我希望能够**:
-- 获得结构化的需求信息
-- 访问详细的Jira票据
-- 理解需求的优先级和依赖关系
+### 6.3 Development Team
+**As a Development Team Member, I want to**:
+- Get structured requirement information
+- Access detailed Jira tickets
+- Understand requirement priorities and dependencies
 
-## 7. 验收标准
+## 7. Acceptance Criteria
 
-### 7.1 功能验收
-- [ ] 支持Excel和CSV文件上传
-- [ ] 数据验证功能正常工作
-- [ ] Jira票据创建成功
-- [ ] 导出功能完整可用
-- [ ] 用户界面友好易用
+### 7.1 Functional Acceptance
+- [ ] Support Excel and CSV file upload
+- [ ] Data validation functionality works properly
+- [ ] Jira ticket creation successful
+- [ ] Export functionality complete and available
+- [ ] User interface friendly and easy to use
 
-### 7.2 性能验收
-- [ ] 处理1000条记录时间<30秒
-- [ ] 系统响应时间<3秒
-- [ ] 内存使用<512MB
-- [ ] 支持10个并发用户
+### 7.2 Performance Acceptance
+- [ ] Process 1000 records in <30 seconds
+- [ ] System response time <3 seconds
+- [ ] Memory usage <512MB
+- [ ] Support 10 concurrent users
 
-### 7.3 安全验收
-- [ ] API密钥安全存储
-- [ ] 文件上传安全检查
-- [ ] 输入数据验证完整
-- [ ] 错误信息不泄露敏感信息
+### 7.3 Security Acceptance
+- [ ] API keys stored securely
+- [ ] File upload security checks complete
+- [ ] Input data validation complete
+- [ ] Error messages don't leak sensitive information
 
-## 8. 风险评估
+## 8. Risk Assessment
 
-### 8.1 技术风险
-- **API限制**: Jira和OpenAI API可能有调用限制
-- **文件格式**: 复杂Excel文件可能解析失败
-- **网络依赖**: 网络问题可能影响功能
+### 8.1 Technical Risks
+- **API Limitations**: Jira and OpenAI APIs may have call limits
+- **File Format**: Complex Excel files may fail to parse
+- **Network Dependency**: Network issues may affect functionality
 
-### 8.2 业务风险
-- **用户接受度**: 用户可能不习惯新工具
-- **数据质量**: 输入数据质量可能影响结果
-- **集成复杂度**: Jira配置可能复杂
+### 8.2 Business Risks
+- **User Acceptance**: Users may not be accustomed to new tools
+- **Data Quality**: Input data quality may affect results
+- **Integration Complexity**: Jira configuration may be complex
 
-### 8.3 缓解措施
-- 提供详细的用户文档和培训
-- 实现完善的错误处理和用户提示
-- 提供灵活的配置选项
-- 建立用户反馈机制
+### 8.3 Mitigation Measures
+- Provide detailed user documentation and training
+- Implement comprehensive error handling and user prompts
+- Provide flexible configuration options
+- Establish user feedback mechanism
 
-## 9. 发布计划
+## 9. Release Plan
 
-### 9.1 版本1.0 (当前版本)
-- 基础文件上传和解析
-- 数据验证功能
-- Jira集成
-- 导出功能
-- 基础用户界面
+### 9.1 Version 1.0 (Current Version)
+- Basic file upload and parsing
+- Data validation functionality
+- Jira integration
+- Export functionality
+- Basic user interface
 
-### 9.2 未来版本
-- 增强的数据分析功能
-- 更多文件格式支持
-- 用户认证系统
-- 审计日志功能
-- 移动端优化
+### 9.2 Future Versions
+- Enhanced data analysis features
+- More file format support
+- User authentication system
+- Audit logging functionality
+- Mobile optimization
 
-## 10. 成功标准
+## 10. Success Criteria
 
-### 10.1 技术成功标准
-- 系统稳定运行，无重大bug
-- 性能指标达到要求
-- 安全要求满足
-- 代码质量良好
+### 10.1 Technical Success Criteria
+- System runs stably with no major bugs
+- Performance metrics meet requirements
+- Security requirements satisfied
+- Good code quality
 
-### 10.2 业务成功标准
-- 用户满意度>85%
-- 处理效率提升>80%
-- 数据错误率降低>90%
-- 用户采用率>70%
+### 10.2 Business Success Criteria
+- User satisfaction >85%
+- Processing efficiency improvement >80%
+- Data error rate reduction >90%
+- User adoption rate >70%
 
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2024年10月  
-**负责人**: Peak3开发团队
+**Document Version**: 1.0  
+**Last Updated**: October 2024  
+**Responsible**: Peak3 Development Team
