@@ -20,7 +20,6 @@ import logging
 # Import modules directly
 from convert import run as convert_run
 from utils import load_env, load_yaml_config
-from forge_integration import ForgeWorkflowProcessor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

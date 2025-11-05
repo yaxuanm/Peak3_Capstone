@@ -1,16 +1,16 @@
-# Excel配置
+# Excel Configuration
 excel:
-  sheet_name: "1. Requirements - Internal"  # Excel工作表名称
+  sheet_name: "1. Requirements - Internal"  # Excel worksheet name
   columns:
     requirement_id: "Requirement ID"
-    requirement: "Requirement"            # 下拉列，映射到Epic名称
+    requirement: "Requirement"            # Dropdown column, maps to Epic name
     description: "Description"
     priority: "Priority"                  # P0..P4
     domain: "Domain"
     subdomain: "Sub-domain"
     requirement_type: "Requirement type"
 
-# 优先级映射
+# Priority Mapping
 priority_map:
   P0: Highest
   P1: High
@@ -18,26 +18,26 @@ priority_map:
   P3: Low
   P4: Lowest
 
-# Jira字段可配置
+# Jira Field Configuration
 jira:
   project_key: "${JIRA_PROJECT_KEY}"
   epic_issue_type: "Epic"
   story_issue_type: "Story"
-  epic_link_field_key: "customfield_10014"   # 你的Jira实例里Epic Link字段ID，需确认
-  component_from: "domain"                   # 可选：将Domain映射为Component
+  epic_link_field_key: "customfield_10014"   # Epic Link field ID in your Jira instance, needs confirmation
+  component_from: "domain"                   # Optional: Map Domain to Component
   labels_from:
     - "domain"
     - "subdomain"
     - "requirement_type"
 
-# 文本生成与摘要（本周先用简单规则；后续接LLM增强）
+# Text Generation and Summary (Simple rules first; LLM enhancement to follow)
 texting:
-  story_title_words: 10    # 从描述中截取前N词作为简短标题
-  summarize_epic: false    # 本周先关闭；后续用LLM汇总
+  story_title_words: 10    # Extract first N words from description as short title
+  summarize_epic: false    # Currently disabled; LLM summarization to follow
 
-# 数据质量检查配置
+# Data Quality Check Configuration
 data_quality:
-  enabled: true           # 是否启用数据质量检查
-  openai_model: "gpt-4o-mini"  # OpenAI模型名称
-  max_tokens: 2000        # 最大token数
-  temperature: 0.3        # 温度参数
+  enabled: true           # Whether to enable data quality checking
+  openai_model: "gpt-4o-mini"  # OpenAI model name
+  max_tokens: 2000        # Maximum token count
+  temperature: 0.3        # Temperature parameter

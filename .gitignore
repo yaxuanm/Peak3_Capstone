@@ -63,3 +63,14 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+# Upload directories
+uploads/
+upload/
+
+# Duplicate data folders (keep only in project folders)
+/data/
+
+# Project-specific cache
+requirements sheet to jira/__pycache__/
+requirements sheet to BSD/__pycache__/

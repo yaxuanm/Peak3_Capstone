@@ -1,176 +1,176 @@
 # Peak3 Requirements Automation - Final Report
 
-## 项目概述
+## Project Overview
 
-Peak3 Requirements Automation 是一个基于Python Flask的Web应用程序，用于自动化处理需求文档并创建Jira票据。该系统能够解析Excel/CSV格式的需求文档，进行数据验证，并自动在Jira中创建Epic和Story票据。
+Peak3 Requirements Automation is a Python Flask-based web application for automating requirement document processing and Jira ticket creation. The system can parse Excel/CSV format requirement documents, perform data validation, and automatically create Epic and Story tickets in Jira.
 
-## 核心功能
+## Core Features
 
-### 1. 数据验证功能
-- **文件格式支持**: 支持Excel (.xlsx) 和CSV (.csv) 文件
-- **数据完整性检查**: 验证必填字段（Requirement ID, Requirement, Description, Priority）
-- **数据质量检查**: 使用OpenAI API进行智能数据质量分析
-- **LLM生成摘要**: 自动为每个需求生成智能摘要
-- **实时验证结果**: 提供详细的验证报告，包括问题统计和具体错误信息
+### 1. Data Validation Features
+- **File Format Support**: Supports Excel (.xlsx) and CSV (.csv) files
+- **Data Integrity Checking**: Validates required fields (Requirement ID, Requirement, Description, Priority)
+- **Data Quality Checking**: Uses OpenAI API for intelligent data quality analysis
+- **LLM-Generated Summaries**: Automatically generates intelligent summaries for each requirement
+- **Real-time Validation Results**: Provides detailed validation reports including issue statistics and specific error messages
 
-### 2. Jira集成功能
-- **自动票据创建**: 根据需求文档自动创建Epic和Story
-- **智能分组**: 按Domain自动将需求分组为Epic
-- **优先级映射**: 自动映射需求优先级到Jira优先级
-- **LLM增强描述**: 使用AI生成高质量的票据描述和摘要
-- **防重复创建**: 支持幂等性操作，避免重复创建票据
+### 2. Jira Integration Features
+- **Automatic Ticket Creation**: Automatically creates Epic and Story tickets based on requirement documents
+- **Smart Grouping**: Automatically groups requirements by Domain into Epics
+- **Priority Mapping**: Automatically maps requirement priorities to Jira priorities
+- **LLM-Enhanced Descriptions**: Uses AI to generate high-quality ticket descriptions and summaries
+- **Duplicate Prevention**: Supports idempotent operations to avoid duplicate ticket creation
 
-### 3. 用户界面功能
-- **直观的Web界面**: 基于HTML/CSS/JavaScript的现代化界面
-- **拖拽上传**: 支持拖拽方式上传文件
-- **实时反馈**: 提供操作状态和进度的实时反馈
-- **结果展示**: 清晰展示验证结果和创建的票据信息
+### 3. User Interface Features
+- **Intuitive Web Interface**: Modern interface based on HTML/CSS/JavaScript
+- **Drag-and-Drop Upload**: Supports drag-and-drop file upload
+- **Real-time Feedback**: Provides real-time operation status and progress feedback
+- **Result Display**: Clearly displays validation results and created ticket information
 
-### 4. AI智能功能
-- **智能摘要生成**: 使用LLM为每个需求自动生成简洁摘要
-- **用户故事格式**: 自动将需求转换为标准用户故事格式
-- **业务上下文增强**: 为票据描述添加业务背景和上下文
-- **验收标准建议**: 基于需求内容生成验收标准建议
+### 4. AI-Powered Features
+- **Intelligent Summary Generation**: Uses LLM to automatically generate concise summaries for each requirement
+- **User Story Format**: Automatically converts requirements to standard user story format
+- **Business Context Enhancement**: Adds business background and context to ticket descriptions
+- **Acceptance Criteria Suggestions**: Generates acceptance criteria suggestions based on requirement content
 
-### 5. 导出功能
-- **多格式导出**: 支持CSV和Excel格式导出
-- **Jira链接**: 提供可直接访问的Jira票据链接
-- **一键复制**: 支持复制所有Jira链接到剪贴板
+### 5. Export Features
+- **Multi-format Export**: Supports CSV and Excel format export
+- **Jira Links**: Provides directly accessible Jira ticket links
+- **One-click Copy**: Supports copying all Jira links to clipboard
 
-## 技术架构
+## Technical Architecture
 
-### 后端技术栈
-- **Python 3.8+**: 主要编程语言
-- **Flask**: Web框架
-- **Pandas**: 数据处理
-- **OpenAI API**: 数据质量检查
-- **Jira REST API**: Jira集成
+### Backend Technology Stack
+- **Python 3.8+**: Primary programming language
+- **Flask**: Web framework
+- **Pandas**: Data processing
+- **OpenAI API**: Data quality checking
+- **Jira REST API**: Jira integration
 
-### 前端技术栈
-- **HTML5**: 页面结构
-- **CSS3**: 样式设计
-- **JavaScript (ES6+)**: 交互逻辑
-- **Bootstrap**: UI组件库
+### Frontend Technology Stack
+- **HTML5**: Page structure
+- **CSS3**: Styling design
+- **JavaScript (ES6+)**: Interactive logic
+- **Bootstrap**: UI component library
 
-### 项目结构
+### Project Structure
 ```
 Peak3_Capstone/
-├── api_standalone.py          # Flask应用主文件
-├── config.yml                 # 配置文件
-├── requirements.txt           # Python依赖
+├── api_standalone.py          # Flask application main file
+├── config.yml                 # Configuration file
+├── requirements.txt           # Python dependencies
 ├── data/
-│   └── sample_requirements.csv # 示例数据
+│   └── sample_requirements.csv # Sample data
 ├── src/
-│   ├── convert.py             # 核心转换逻辑
-│   ├── jira_client.py         # Jira API客户端
-│   ├── data_quality_checker.py # 数据质量检查
-│   ├── excel_parser.py        # Excel解析器
-│   └── utils.py               # 工具函数
+│   ├── convert.py             # Core conversion logic
+│   ├── jira_client.py         # Jira API client
+│   ├── data_quality_checker.py # Data quality checking
+│   ├── excel_parser.py        # Excel parser
+│   └── utils.py               # Utility functions
 └── static/
-    ├── index.html             # 主页面
-    └── styles.css             # 样式文件
+    ├── index.html             # Main page
+    └── styles.css             # Style file
 ```
 
-## 主要特性
+## Key Features
 
-### 1. 智能数据处理
-- 自动识别Excel/CSV文件格式
-- 支持BOM字符处理（UTF-8-sig编码）
-- 智能列名映射
-- 数据清洗和格式化
+### 1. Intelligent Data Processing
+- Automatic Excel/CSV file format recognition
+- BOM character handling support (UTF-8-sig encoding)
+- Intelligent column name mapping
+- Data cleaning and formatting
 
-### 2. 高级数据验证
-- 必填字段检查
-- 数据格式验证
-- 业务规则验证
-- AI驱动的数据质量分析
+### 2. Advanced Data Validation
+- Required field checking
+- Data format validation
+- Business rule validation
+- AI-driven data quality analysis
 
-### 3. 灵活的Jira集成
-- 支持Jira Cloud
-- 可配置的项目设置
-- 自定义字段映射
-- 批量操作支持
+### 3. Flexible Jira Integration
+- Supports Jira Cloud
+- Configurable project settings
+- Custom field mapping
+- Batch operation support
 
-### 4. 用户友好的界面
-- 响应式设计
-- 直观的操作流程
-- 详细的错误提示
-- 实时状态更新
+### 4. User-Friendly Interface
+- Responsive design
+- Intuitive operation flow
+- Detailed error prompts
+- Real-time status updates
 
-## 使用场景
+## Use Cases
 
-### 1. 需求管理
-- 从Excel/CSV导入需求文档
-- 自动验证数据完整性
-- 生成标准化的Jira票据
+### 1. Requirement Management
+- Import requirement documents from Excel/CSV
+- Automatically validate data integrity
+- Generate standardized Jira tickets
 
-### 2. 项目管理
-- 按功能域自动分组需求
-- 创建Epic和Story层级结构
-- 统一的需求跟踪
+### 2. Project Management
+- Automatically group requirements by functional domain
+- Create Epic and Story hierarchical structure
+- Unified requirement tracking
 
-### 3. 质量保证
-- 数据质量检查
-- 格式标准化
-- 错误识别和修复建议
+### 3. Quality Assurance
+- Data quality checking
+- Format standardization
+- Error identification and repair suggestions
 
-## 部署说明
+## Deployment Instructions
 
-### 环境要求
+### Environment Requirements
 - Python 3.8+
-- pip包管理器
-- 网络连接（用于Jira API和OpenAI API）
+- pip package manager
+- Network connection (for Jira API and OpenAI API)
 
-### 安装步骤
-1. 克隆项目仓库
-2. 安装Python依赖：`pip install -r requirements.txt`
-3. 配置环境变量（Jira和OpenAI API密钥）
-4. 启动应用：`python api_standalone.py`
-5. 访问：http://localhost:5000
+### Installation Steps
+1. Clone the project repository
+2. Install Python dependencies: `pip install -r requirements.txt`
+3. Configure environment variables (Jira and OpenAI API keys)
+4. Start the application: `python api_standalone.py`
+5. Access: http://localhost:5000
 
-### 配置说明
-- 编辑`config.yml`配置列名映射
-- 设置环境变量配置API密钥
-- 根据需要调整Jira项目设置
+### Configuration Instructions
+- Edit `config.yml` to configure column name mapping
+- Set environment variables to configure API keys
+- Adjust Jira project settings as needed
 
-## 测试数据
+## Test Data
 
-项目包含完整的示例数据文件`data/sample_requirements.csv`，包含21条测试需求记录，涵盖：
-- 旅行保险业务需求
-- 多种优先级级别
-- 完整的需求描述
-- 标准化的数据结构
+The project includes a complete sample data file `data/sample_requirements.csv`, containing 21 test requirement records covering:
+- Travel insurance business requirements
+- Multiple priority levels
+- Complete requirement descriptions
+- Standardized data structure
 
-## 性能特点
+## Performance Characteristics
 
-- **处理速度**: 支持批量处理大量需求记录
-- **内存效率**: 优化的数据处理算法
-- **错误处理**: 完善的异常处理机制
-- **可扩展性**: 模块化设计，易于扩展
+- **Processing Speed**: Supports batch processing of large amounts of requirement records
+- **Memory Efficiency**: Optimized data processing algorithms
+- **Error Handling**: Comprehensive exception handling mechanisms
+- **Scalability**: Modular design, easy to extend
 
-## 安全特性
+## Security Features
 
-- **API密钥保护**: 环境变量存储敏感信息
-- **输入验证**: 严格的文件格式和内容验证
-- **错误处理**: 安全的错误信息返回
-- **权限控制**: 基于Jira用户权限的访问控制
+- **API Key Protection**: Environment variables store sensitive information
+- **Input Validation**: Strict file format and content validation
+- **Error Handling**: Secure error message returns
+- **Access Control**: Access control based on Jira user permissions
 
-## 未来扩展
+## Future Extensions
 
-### 计划功能
-- 支持更多文件格式
-- 增强的数据分析功能
-- 自定义验证规则
-- 批量操作优化
+### Planned Features
+- Support for more file formats
+- Enhanced data analysis features
+- Custom validation rules
+- Batch operation optimization
 
-### 技术改进
-- 异步处理支持
-- 数据库集成
-- 用户认证系统
-- 审计日志功能
+### Technical Improvements
+- Asynchronous processing support
+- Database integration
+- User authentication system
+- Audit logging functionality
 
-## 结论
+## Conclusion
 
-Peak3 Requirements Automation 成功实现了需求文档到Jira票据的自动化转换，提供了完整的解决方案包括数据验证、智能处理和用户友好的界面。系统具有良好的可扩展性和维护性，能够满足企业级需求管理的需求。
+Peak3 Requirements Automation successfully implements automated conversion from requirement documents to Jira tickets, providing a complete solution including data validation, intelligent processing, and a user-friendly interface. The system has good scalability and maintainability, capable of meeting enterprise-level requirement management needs.
 
-通过智能化的数据处理和Jira集成，该系统显著提高了需求管理的效率，减少了手动操作的工作量，为项目团队提供了强大的工具支持。
+Through intelligent data processing and Jira integration, this system significantly improves requirement management efficiency, reduces manual operation workload, and provides powerful tool support for project teams.
