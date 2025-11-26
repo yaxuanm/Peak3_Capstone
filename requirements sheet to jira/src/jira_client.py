@@ -39,11 +39,35 @@ class JiraClient:
                     continue
             # Better error logging
             if resp.status_code >= 400:
-                print(f"Jira API Error {resp.status_code}:")
+                error_msg = f"Jira API Error {resp.status_code}:"
+                print(error_msg)
                 print(f"URL: {url}")
-                print(f"Request body: {kwargs.get('json', 'None')}")
+                print(f"Method: {method}")
+                print(f"Auth Email: {self.auth[0]}")
+                print(f"Auth Token: {self.auth[1][:20]}..." if len(self.auth[1]) > 20 else f"Auth Token: {self.auth[1]}")
+                if kwargs.get('json'):
+                    # Don't print full request body if it's too large
+                    req_body = kwargs.get('json')
+                    if isinstance(req_body, dict) and 'fields' in req_body:
+                        print(f"Request fields: {list(req_body.get('fields', {}).keys())}")
+                    else:
+                        print(f"Request body: {req_body}")
                 print(f"Response: {resp.text}")
                 print("="*50)
+                
+                # Provide helpful error messages for common issues
+                if resp.status_code == 401:
+                    print("\n[认证错误] 可能的原因:")
+                    print("1. API Token 已过期或无效")
+                    print("2. Email 地址不正确")
+                    print("3. API Token 格式错误（应使用完整的API Token，不是密码）")
+                    print("4. 账户可能被禁用或没有API访问权限")
+                    print("\n解决方案:")
+                    print("1. 访问 https://id.atlassian.com/manage-profile/security/api-tokens")
+                    print("2. 创建新的API Token")
+                    print("3. 确保使用正确的Email地址（与Jira账户关联的邮箱）")
+                    print("4. 确保API Token完整复制，没有多余的空格或换行")
+                    print("="*50)
             resp.raise_for_status()
             if resp.content:
                 return resp.json()

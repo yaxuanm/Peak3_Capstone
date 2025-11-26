@@ -33,19 +33,23 @@
                 <form id="configForm" class="config-form">
                     <div class="form-group">
                         <label for="baseUrl">Jira Base URL:</label>
-                        <input type="url" id="baseUrl" placeholder="https://yourcompany.atlassian.net" value="https://peak3capstone.atlassian.net">
+                        <input type="url" id="baseUrl" placeholder="https://yourcompany.atlassian.net" value="">
+                        <span class="helper-text">Found in your browser address bar when logged into Jira (e.g., https://yourcompany.atlassian.net)</span>
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address:</label>
-                        <input type="email" id="email" placeholder="your@email.com" value="yaxuanm@andrew.cmu.edu">
+                        <input type="email" id="email" placeholder="your@email.com" value="">
+                        <span class="helper-text">The email address associated with your Jira/Atlassian account</span>
                     </div>
                     <div class="form-group">
                         <label for="apiToken">API Token:</label>
-                        <input type="password" id="apiToken" placeholder="ATATT3x..." value="ATATT3xFfGF0hrBZ3Jvlrd1NG2lPsiw4wESb2mGQFNGHmJo7ly2afE35yQVMChQ5OYOWZphEphEXzTTIM2QFKjjiee_wdGlmsr610Rwy2qLQ9j_z-By2keMbWMP4GWw0QnMTg00r0gKLjs6oOnQXQQwWEowQTp4UnLcUYTyOP_pW86FkXx9ezQ4=542CC2C0">
+                        <input type="password" id="apiToken" placeholder="ATATT3x..." value="">
+                        <span class="helper-text">Generate at <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">Atlassian API Tokens</a> - Click "Create API token"</span>
                     </div>
                     <div class="form-group">
                         <label for="projectKey">Project Key:</label>
-                        <input type="text" id="projectKey" placeholder="REQ" value="SCRUM">
+                        <input type="text" id="projectKey" placeholder="REQ" value="">
+                        <span class="helper-text">Found in Jira project URL: /projects/<strong>KEY</strong>/... or in Issue IDs like <strong>KEY</strong>-123</span>
                     </div>
                 </form>
             </div>

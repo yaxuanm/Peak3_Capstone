@@ -1,5 +1,7 @@
 /* Peak3 Requirements Automation - Modern UI Styles */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -7,41 +9,60 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
-    color: #333;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #1a1a2e;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     min-height: 100vh;
+    padding: 40px 20px;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
-    background: white;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 40px 50px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
 }
 
 header {
     text-align: center;
-    margin-bottom: 40px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #e8e8e8;
+    position: relative;
+}
+
+header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, #e94560, #0f3460);
+    border-radius: 2px;
 }
 
 header h1 {
-    color: #2c3e50;
-    font-size: 2.5em;
-    margin-bottom: 10px;
+    color: #1a1a2e;
+    font-size: 2.8em;
+    margin-bottom: 12px;
     font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #1a1a2e, #e94560);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 header p {
-    color: #7f8c8d;
-    font-size: 1.1em;
+    color: #6c757d;
+    font-size: 1.15em;
+    font-weight: 400;
 }
 
 main {
@@ -51,20 +72,56 @@ main {
 .upload-section,
 .config-section,
 .action-section {
-    margin-bottom: 30px;
-    padding: 25px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #3498db;
+    margin-bottom: 35px;
+    padding: 30px 35px;
+    background: linear-gradient(145deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 16px;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.upload-section:hover,
+.config-section:hover,
+.action-section:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.upload-section {
+    border-left: 5px solid #e94560;
+}
+
+.config-section {
+    border-left: 5px solid #0f3460;
+}
+
+.action-section {
+    border-left: 5px solid #00b894;
 }
 
 .upload-section h2,
 .config-section h2,
 .action-section h2 {
-    color: #2c3e50;
-    margin-bottom: 20px;
-    font-size: 1.4em;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+    font-size: 1.5em;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.upload-section h2::before {
+    content: '📁';
+}
+
+.config-section h2::before {
+    content: '⚙️';
+}
+
+.action-section h2::before {
+    content: '🚀';
 }
 
 /* File Upload Styles */
@@ -84,205 +141,312 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    border: 2px dashed #3498db;
-    border-radius: 8px;
-    background: white;
+    padding: 40px 30px;
+    border: 2px dashed #e94560;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #fff5f7 0%, #ffffff 100%);
     cursor: pointer;
     transition: all 0.3s ease;
-    min-height: 80px;
+    min-height: 120px;
 }
 
 .file-input-label:hover {
-    border-color: #2980b9;
-    background: #f8f9fa;
-    transform: translateY(-2px);
+    border-color: #c73e54;
+    background: linear-gradient(145deg, #ffe8ec 0%, #fff5f7 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(233, 69, 96, 0.15);
 }
 
 .file-input-text {
-    font-size: 1.1em;
-    color: #3498db;
-    font-weight: 500;
-    margin-right: 10px;
+    font-size: 1.2em;
+    color: #e94560;
+    font-weight: 600;
+    margin-right: 12px;
 }
 
 .file-input-icon {
-    font-size: 1.5em;
+    font-size: 2em;
 }
 
 .file-info {
-    margin-top: 15px;
-    padding: 15px;
-    background: #e8f5e8;
-    border-radius: 6px;
-    border-left: 4px solid #27ae60;
+    margin-top: 20px;
+    padding: 20px 25px;
+    background: linear-gradient(145deg, #d4edda 0%, #e8f5e8 100%);
+    border-radius: 12px;
+    border-left: 5px solid #00b894;
 }
 
 .file-details {
-    color: #2c3e50;
-    font-size: 0.95em;
-    line-height: 1.5;
+    color: #1a1a2e;
+    font-size: 1em;
+    line-height: 1.6;
 }
 
 /* Form Styles */
 .config-form {
     display: grid;
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
 }
-
 
 .form-group {
     display: flex;
     flex-direction: column;
 }
 
+.form-group:nth-child(3) {
+    grid-column: span 2;
+}
+
 .form-group label {
     font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 8px;
+    color: #1a1a2e;
+    margin-bottom: 10px;
     font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .form-group input {
-    padding: 12px 15px;
+    padding: 14px 18px;
     border: 2px solid #e1e8ed;
-    border-radius: 6px;
+    border-radius: 12px;
     font-size: 1em;
-    transition: border-color 0.3s ease;
-    background: white;
+    transition: all 0.3s ease;
+    background: #fafbfc;
+    font-family: inherit;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    border-color: #0f3460;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(15, 52, 96, 0.1);
 }
 
 .form-group input:invalid {
-    border-color: #e74c3c;
+    border-color: #e94560;
+}
+
+.form-group input::placeholder {
+    color: #adb5bd;
+}
+
+/* Helper Text Styles */
+.helper-text {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.85em;
+    color: #6c757d;
+    line-height: 1.5;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #dee2e6;
+}
+
+.helper-text a {
+    color: #e94560;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.helper-text a:hover {
+    color: #c73e54;
+    text-decoration: underline;
+}
+
+.helper-text strong {
+    color: #1a1a2e;
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
 }
 
 /* Button Styles */
 .button-group {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
     flex-wrap: wrap;
 }
 
 .btn {
-    padding: 12px 24px;
+    padding: 16px 32px;
     border: none;
-    border-radius: 6px;
+    border-radius: 12px;
     font-size: 1em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: 140px;
+    min-width: 180px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+    left: 100%;
 }
 
 .btn:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, #e94560 0%, #c73e54 100%);
     color: white;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #2980b9, #1f5f8b);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    background: linear-gradient(135deg, #c73e54 0%, #a83347 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
     color: white;
+    box-shadow: 0 4px 15px rgba(15, 52, 96, 0.3);
 }
 
 .btn-secondary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(149, 165, 166, 0.3);
+    background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(15, 52, 96, 0.4);
 }
 
 /* Status Area */
 .status-area {
-    margin-top: 30px;
-    padding: 20px;
-    border-radius: 8px;
+    margin-top: 35px;
+    padding: 0;
+    border-radius: 16px;
     display: none;
 }
 
 .status-message {
-    padding: 15px 20px;
-    border-radius: 6px;
+    padding: 20px 25px;
+    border-radius: 12px;
     font-weight: 500;
     text-align: center;
     font-size: 1.1em;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .status-info {
-    background: #d1ecf1;
+    background: linear-gradient(145deg, #d1ecf1 0%, #e8f4f8 100%);
     color: #0c5460;
-    border-left: 4px solid #17a2b8;
+    border-left: 5px solid #17a2b8;
 }
 
 .status-success {
-    background: #d4edda;
+    background: linear-gradient(145deg, #d4edda 0%, #e8f5e8 100%);
     color: #155724;
-    border-left: 4px solid #28a745;
+    border-left: 5px solid #00b894;
 }
 
 .status-error {
-    background: #f8d7da;
+    background: linear-gradient(145deg, #f8d7da 0%, #ffeaec 100%);
     color: #721c24;
-    border-left: 4px solid #dc3545;
+    border-left: 5px solid #e94560;
 }
 
 /* Footer */
 footer {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 2px solid #f0f0f0;
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 2px solid #e8e8e8;
+}
+
+.help-section {
+    background: linear-gradient(145deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 25px 30px;
+    border-radius: 16px;
+    border: 1px solid #e8e8e8;
 }
 
 .help-section h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-    font-size: 1.2em;
+    color: #1a1a2e;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.help-section h3::before {
+    content: '💡';
 }
 
 .help-section ul {
     list-style: none;
     padding-left: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
 }
 
 .help-section li {
-    padding: 8px 0;
-    padding-left: 20px;
+    padding: 12px 15px;
+    padding-left: 35px;
     position: relative;
-    color: #555;
+    color: #495057;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    font-size: 0.95em;
 }
 
 .help-section li:before {
     content: "✓";
     position: absolute;
-    left: 0;
-    color: #27ae60;
+    left: 12px;
+    color: #00b894;
     font-weight: bold;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
+    .help-section ul {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
     .container {
-        margin: 10px;
-        padding: 15px;
+        max-width: 900px;
+        padding: 30px 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 20px 15px;
+    }
+    
+    .container {
+        padding: 25px 20px;
+        border-radius: 16px;
     }
     
     header h1 {
@@ -300,19 +464,30 @@ footer {
     }
     
     .config-form {
-        gap: 15px;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .form-group:nth-child(3) {
+        grid-column: span 1;
     }
 }
 
 @media (max-width: 480px) {
     header h1 {
-        font-size: 1.8em;
+        font-size: 1.6em;
     }
     
     .upload-section,
     .config-section,
     .action-section {
         padding: 20px 15px;
+        border-radius: 12px;
+    }
+    
+    .file-input-label {
+        padding: 25px 15px;
+        min-height: 100px;
     }
 }
 
