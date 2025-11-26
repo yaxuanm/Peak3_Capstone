@@ -7,7 +7,7 @@ TRAVEL-CMU-PC-028,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Qu
 TRAVEL-CMU-PC-029,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,Optional Coverages allow add/remove coverages with indicators and validation.,P3
 TRAVEL-CMU-PC-030,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,"Payment Processing must support multiple payment methods, validate cards, and handle secure transactions.",P1
 TRAVEL-CMU-PC-031,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,"Confirmation Page must display booking summary, policy details, and download options.",P2
-TRAVEL-CMU-PC-032,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,Email Notifications must send booking confirmations and policy documents to customers.,P2
+TRAVEL-CMU-PC-032,,Travel,CMU,2 - Policy Issuance,3 - Sales,1 - D2C Quote & Buy journey,Email Notifications must send booking confirmations and policy documents to customers.,P2
 TRAVEL-CMU-PC-033,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,2 - Claims Management,Claims Submission portal must allow customers to upload documents and track claim status.,P1
 TRAVEL-CMU-PC-034,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,2 - Claims Management,Document Upload must support multiple file formats with size validation and virus scanning.,P2
 TRAVEL-CMU-PC-035,Functional,Travel,CMU,2 - Policy Issuance,3 - Sales,2 - Claims Management,Claim Status Tracking must provide real-time updates and estimated processing times.,P2

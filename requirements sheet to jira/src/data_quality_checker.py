@@ -14,6 +14,8 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import logging
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -144,49 +146,81 @@ class DataQualityChecker:
             logger.error(f"Error getting OpenAI analysis: {str(e)}")
             raise
     
-    def data_quality_check(self, df):
-        # Process records individually for better reliability
-        # But with optimized prompts and error handling
-        # Limit to first 5 records for testing
+    def data_quality_check(self, df, batch_size=5, max_workers=3):
+        """
+        Process records with batch processing and parallel API calls for speed
+        
+        Args:
+            df: DataFrame to process
+            batch_size: Number of records to process in each batch (default: 5)
+            max_workers: Maximum number of parallel threads (default: 3)
+        """
         responses = []
+        records = list(df.iterrows())
+        total_records = len(records)
         
-        for idx, (_, row) in enumerate(df.iterrows()):
-            # Only process first 5 records for testing
-            if idx >= 5:
-                break
-            try:
-                # Generate optimized single-record prompt
-                prompt = self.generate_single_record_prompt(row, idx)
-                
-                # Get response with timeout
-                response = self.get_openai_analysis(prompt)
-                
-                # Parse response
-                result = {
-                    'row_index': idx,
-                    'analysis': response,
-                    'summary': self._extract_summary_from_response(response),
-                    'description': self._extract_description_from_response(response),
-                    'is_valid': self._check_if_valid_from_response(response)
-                }
-                responses.append(result)
-                
-                # Add small delay to avoid rate limiting
-                import time
-                time.sleep(0.1)
-                
-            except Exception as e:
-                logger.warning(f"Error processing record {idx}: {str(e)}")
-                # Add fallback result
-                responses.append({
-                    'row_index': idx,
-                    'analysis': f'Error processing: {str(e)}',
-                    'summary': '',
-                    'description': '',
-                    'is_valid': True
-                })
+        logger.info(f"Processing {total_records} records with batch_size={batch_size}, max_workers={max_workers}")
         
+        # Process in batches
+        for batch_start in range(0, total_records, batch_size):
+            batch_end = min(batch_start + batch_size, total_records)
+            batch_records = records[batch_start:batch_end]
+            
+            logger.info(f"Processing batch {batch_start//batch_size + 1}: records {batch_start} to {batch_end-1}")
+            
+            # Process batch in parallel
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_idx = {}
+                
+                for idx, (_, row) in batch_records:
+                    future = executor.submit(self._process_single_record, row, idx)
+                    future_to_idx[future] = idx
+                
+                # Collect results as they complete
+                for future in as_completed(future_to_idx):
+                    idx = future_to_idx[future]
+                    try:
+                        result = future.result()
+                        responses.append(result)
+                    except Exception as e:
+                        logger.warning(f"Error processing record {idx}: {str(e)}")
+                        responses.append({
+                            'row_index': idx,
+                            'analysis': f'Error processing: {str(e)}',
+                            'summary': '',
+                            'description': '',
+                            'is_valid': True
+                        })
+            
+            # Small delay between batches to avoid rate limiting
+            if batch_end < total_records:
+                time.sleep(0.2)
+        
+        # Sort by row_index to maintain order
+        responses.sort(key=lambda x: x['row_index'])
         return responses
+    
+    def _process_single_record(self, row, idx):
+        """Process a single record - used for parallel execution"""
+        try:
+            # Generate optimized single-record prompt
+            prompt = self.generate_single_record_prompt(row, idx)
+            
+            # Get response with timeout
+            response = self.get_openai_analysis(prompt)
+            
+            # Parse response
+            result = {
+                'row_index': idx,
+                'analysis': response,
+                'summary': self._extract_summary_from_response(response),
+                'description': self._extract_description_from_response(response),
+                'is_valid': self._check_if_valid_from_response(response)
+            }
+            return result
+        except Exception as e:
+            logger.warning(f"Error in _process_single_record for {idx}: {str(e)}")
+            raise
     
     def generate_single_record_prompt(self, row, idx):
         """

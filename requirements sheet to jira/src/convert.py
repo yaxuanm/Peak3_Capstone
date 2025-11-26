@@ -162,9 +162,6 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
             print(f"[DRY RUN] Would create Epic: {epic_name}")
             print(f"[DRY RUN]   Epic Description Preview: {epic_desc[:120]}...")
             for idx, row in enumerate(items):
-                # Only process first 5 records for testing
-                if idx >= 5:
-                    break
                 req_id = coalesce_str(row.get("requirement_id"))
                 if not req_id:
                     continue
@@ -204,6 +201,9 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
         dry_run=dry_run,
     )
 
+    # Collect actually created tickets
+    created_tickets = []
+
     for epic_name, items in groups.items():
         if not epic_name:
             continue
@@ -218,9 +218,6 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
 
         # Create stories
         for idx, row in enumerate(items):
-            # Only process first 5 records for testing
-            if idx >= 5:
-                break
             req_id = coalesce_str(row.get("requirement_id"))
             if not req_id:
                 continue
@@ -248,6 +245,23 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
             existing = client.search_issue_by_requirement_id(req_id, issue_type="Story")
             if existing:
                 print(f"[SKIP] Story already exists for Requirement ID: {req_id}")
+                # Add existing ticket to results so user can see it
+                existing_key = existing.get('key', '')
+                created_tickets.append({
+                    'requirement_id': req_id,
+                    'summary': summary,
+                    'description': enhanced_description,
+                    'priority': coalesce_str(row.get("priority")),
+                    'epic_name': epic_name,
+                    'domain': coalesce_str(row.get("domain")),
+                    'sub_domain': coalesce_str(row.get("sub_domain")),
+                    'issue_type': 'Story',
+                    'status': 'Existing',
+                    'assignee': '',
+                    'created': '',
+                    'key': existing_key,
+                    'jira_link': f'{base_url}/browse/{existing_key}'
+                })
                 continue
 
             priority_name = map_priority(coalesce_str(row.get("priority")), priority_map)
@@ -266,49 +280,23 @@ def run(excel_path: str, config_path: str, dry_run: bool, enable_quality_check: 
             )
             print(f"[DEBUG] Created Jira story: {result}")
             
-            # Store the created ticket for later collection
+            # Collect the actually created ticket info
             if result and not result.get("dryRun"):
-                # Store the result for later collection
-                pass
-    
-    # Return created tickets for frontend display
-    created_tickets = []
-    if not dry_run:
-        # Since we know tickets are being created, we'll generate links based on the current ticket count
-        # This is a simplified approach - in a real implementation, we would collect actual ticket IDs
-        ticket_counter = 267  # Start from the last known ticket number
-        
-        for epic_name, items in groups.items():
-            if not epic_name:
-                continue
-            for idx, row in enumerate(items):
-                # Only process first 5 records for testing
-                if idx >= 5:
-                    break
-                req_id = coalesce_str(row.get("requirement_id"))
-                if not req_id:
-                    continue
-                
-                # Generate ticket key based on current counter
-                jira_key = f'SCRUM-{ticket_counter}'
-                jira_link = f'{base_url}/browse/{jira_key}'
-                ticket_counter += 1
-                
-                # Create a ticket entry for export
+                jira_key = result.get('key', '')
                 created_tickets.append({
                     'requirement_id': req_id,
-                    'summary': coalesce_str(row.get("requirement")),
-                    'description': coalesce_str(row.get("description")),
+                    'summary': summary,
+                    'description': enhanced_description,
                     'priority': coalesce_str(row.get("priority")),
                     'epic_name': epic_name,
                     'domain': coalesce_str(row.get("domain")),
                     'sub_domain': coalesce_str(row.get("sub_domain")),
                     'issue_type': 'Story',
-                    'status': 'To Do',
+                    'status': 'Created',
                     'assignee': '',
                     'created': '',
                     'key': jira_key,
-                    'jira_link': jira_link
+                    'jira_link': f'{base_url}/browse/{jira_key}'
                 })
     
     return created_tickets

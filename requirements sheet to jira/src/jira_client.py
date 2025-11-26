@@ -83,21 +83,34 @@ class JiraClient:
         return self._request_with_retry("GET", path, params=params)
 
     def search_issue_by_requirement_id(self, requirement_id: str, issue_type: Optional[str] = None) -> Optional[Dict[str, Any]]:
-        """Search for existing issue by Requirement ID in summary field"""
+        """Search for existing issue by Requirement ID in summary field
+        
+        Uses JQL fuzzy search (~) then verifies exact match in code,
+        since JQL doesn't support exact string matching on summary field.
+        """
         esc = jql_escape_literal(requirement_id)
         jql = f'project = "{self.project_key}" AND summary ~ "{esc}"'
         if issue_type:
             jql += f' AND issuetype = "{jql_escape_literal(issue_type)}"'
         try:
-            # Use the standard search endpoint
-            data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 1})
+            # Use the standard search endpoint, get more results to find exact match
+            data = self._get("/rest/api/3/search", params={"jql": jql, "maxResults": 10})
         except Exception:
             # Fallback: treat JQL 400 as not found, proceed with creation
             return None
         if data.get("dryRun"):
             return None
         issues = data.get("issues", [])
-        return issues[0] if issues else None
+        
+        # Verify exact match - requirement_id should be at the start of summary
+        # Format is typically: "REQ-ID: Description" or "REQ-ID - Description"
+        for issue in issues:
+            summary = issue.get('fields', {}).get('summary', '')
+            # Check if requirement_id is at the beginning of summary
+            if summary.startswith(requirement_id) or f"[{requirement_id}]" in summary:
+                return issue
+        
+        return None
 
     def get_epic_by_name(self, epic_name: str) -> Optional[Dict[str, Any]]:
         esc = jql_escape_literal(epic_name)
